@@ -14,6 +14,7 @@ import com.example.trilock.R
 
 class MainActivity : AppCompatActivity() {
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -28,20 +29,6 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
 
-        val textViewLockStatus = findViewById<TextView>(R.id.text_lock_status)
-        // get reference to ImageView
 
-        val imageView = findViewById<ImageView>(R.id.imageView)
-        // set on-click listener for ImageView
-        imageView.setOnClickListener {
-            // your code here
-            if (textViewLockStatus.text.equals("Locked")) {
-                textViewLockStatus.setText("Unlocked")
-                textViewLockStatus.setTextColor(3)
-            } else {
-                textViewLockStatus.setText("Locked")
-                textViewLockStatus.setTextColor(2)
-            }
-        }
     }
 }

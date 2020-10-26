@@ -3,17 +3,17 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_home_black_24dp"
-        android:title="Lock" />
+        android:icon="@android:drawable/ic_lock_idle_lock"
+        android:title="@string/lock" />
 
     <item
         android:id="@+id/navigation_dashboard"
-        android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="Activity History" />
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="@string/activity_history" />
 
     <item
         android:id="@+id/navigation_notifications"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="Users" />
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/users" />
 
 </menu>

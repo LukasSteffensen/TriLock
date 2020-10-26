@@ -13,4 +13,7 @@
     <string name="edittext_email_login">Email</string>
     <string name="edittext_email_hint">Email</string>
     <string name="edittext_password_hint">Password</string>
+    <string name="users">Users</string>
+    <string name="activity_history">Activity History</string>
+    <string name="lock">Lock</string>
 </resources>
