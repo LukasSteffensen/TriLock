@@ -9,7 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TriLock">
-        <activity android:name=".data.model.MainActivity">
+        <activity
+            android:name=".data.model.MainActivity"
+            android:label="@string/title_activity_main2"></activity>
+        <activity android:name=".data.model.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
