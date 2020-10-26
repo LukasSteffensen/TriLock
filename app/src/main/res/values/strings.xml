@@ -11,4 +11,6 @@
     <string name="login_failed">"Login failed"</string>
     <string name="textview_login_title">Log In</string>
     <string name="edittext_email_login">Email</string>
+    <string name="edittext_email_hint">Email</string>
+    <string name="edittext_password_hint">Password</string>
 </resources>
