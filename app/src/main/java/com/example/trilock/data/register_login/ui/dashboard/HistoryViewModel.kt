@@ -1,13 +1,13 @@
-package com.example.trilock.data.model.ui.notifications
+package com.example.trilock.data.model.ui.history
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class NotificationsViewModel : ViewModel() {
+class HistoryViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is notifications Fragment"
+        value = "This is Activity History Fragment"
     }
     val text: LiveData<String> = _text
 }

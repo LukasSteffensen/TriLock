@@ -1,4 +1,4 @@
-package com.example.trilock.data.model.ui.home
+package com.example.trilock.data.model.ui.lock
 
 import android.os.Bundle
 import android.util.Log
@@ -11,10 +11,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.trilock.R
+import com.example.trilock.data.model.ui.lock.LockViewModel
 
 class LockFragment : Fragment() {
 
-    private lateinit var homeViewModel: HomeViewModel
+    private lateinit var lockViewModel: LockViewModel
 
     private val TAG = "LockFragment"
 
@@ -23,12 +24,12 @@ class LockFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        homeViewModel =
-                ViewModelProvider(this).get(HomeViewModel::class.java)
+        lockViewModel =
+                ViewModelProvider(this).get(LockViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_lock, container, false)
         var textViewLockStatus: TextView = root.findViewById(R.id.text_lock_status)
         val imageViewLock: ImageView = root.findViewById(R.id.image_view_lock)
-        homeViewModel.text.observe(viewLifecycleOwner, Observer {
+        lockViewModel.text.observe(viewLifecycleOwner, Observer {
             textViewLockStatus.text = "Locked"
         })
 
@@ -39,10 +40,10 @@ class LockFragment : Fragment() {
             if (textViewLockStatus.text.toString() == "Locked") {
                 Log.i(TAG," textView equal to Locked")
 
-                homeViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = "Unlocked"})
+                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = "Unlocked"})
             } else {
                 Log.i(TAG," textView not equal to Locked")
-                homeViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = "Locked"})
+                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = "Locked"})
             }
         }
 

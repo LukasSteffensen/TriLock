@@ -16,4 +16,6 @@
     <string name="users">Users</string>
     <string name="activity_history">Activity History</string>
     <string name="lock">Lock</string>
+    <string name="settings">Settings</string>
+    <string name="turn_on_biometric_authentication">Turn on biometric authentication</string>
 </resources>
