@@ -11,18 +11,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.trilock.R
-import com.example.trilock.data.model.ui.lock.LockViewModel
 
 class LockFragment : Fragment() {
 
     private lateinit var lockViewModel: LockViewModel
 
     private val TAG = "LockFragment"
+    private var lockImages = arrayOf(R.drawable.baseline_lock_24, R.drawable.baseline_lock_open_24)
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
+
     ): View? {
         lockViewModel =
                 ViewModelProvider(this).get(LockViewModel::class.java)
@@ -30,7 +31,7 @@ class LockFragment : Fragment() {
         var textViewLockStatus: TextView = root.findViewById(R.id.text_lock_status)
         val imageViewLock: ImageView = root.findViewById(R.id.image_view_lock)
         lockViewModel.text.observe(viewLifecycleOwner, Observer {
-            textViewLockStatus.text = "Locked"
+            textViewLockStatus.text = getString(R.string.locked)
         })
 
         // set on-click listener for ImageView
@@ -39,11 +40,12 @@ class LockFragment : Fragment() {
             Log.i(TAG," imageView clicked")
             if (textViewLockStatus.text.toString() == "Locked") {
                 Log.i(TAG," textView equal to Locked")
-
-                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = "Unlocked"})
+                imageViewLock.setImageResource(lockImages[1])
+                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.unlocked)})
             } else {
                 Log.i(TAG," textView not equal to Locked")
-                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = "Locked"})
+                imageViewLock.setImageResource(lockImages[0])
+                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.locked)})
             }
         }
 
