@@ -8,12 +8,12 @@
 
     <item
         android:id="@+id/navigation_history"
-        android:icon="@android:drawable/ic_menu_recent_history"
+        android:icon="@drawable/baseline_history_24"
         android:title="@string/activity_history" />
 
     <item
         android:id="@+id/navigation_people"
-        android:icon="@android:drawable/ic_menu_share"
+        android:icon="@drawable/baseline_people_alt_24"
         android:title="@string/users" />
 
     <item
