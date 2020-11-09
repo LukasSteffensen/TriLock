@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "320977953701",
+    "firebase_url": "https://trilock-80eb6.firebaseio.com",
+    "project_id": "trilock-80eb6",
+    "storage_bucket": "trilock-80eb6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:320977953701:android:3f20bfbdaa672216e9fe4c",
+        "android_client_info": {
+          "package_name": "com.example.trilock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "320977953701-a797lgpufksnh6990uf7jqq7b70a3478.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-0IIn2r_VV3NNAWyU4aIWBVDRhpkTis0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "320977953701-a797lgpufksnh6990uf7jqq7b70a3478.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

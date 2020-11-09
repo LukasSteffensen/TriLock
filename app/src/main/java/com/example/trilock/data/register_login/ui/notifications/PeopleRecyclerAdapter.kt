@@ -6,6 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.trilock.R
 
 
+
+
 //class PeopleRecyclerAdapter(private val peopleDataset: Array<String>) : RecyclerView.Adapter<PeopleRecyclerAdapter.PeopleViewHolder>() {
 //
 //    class PeopleViewHolder(val TextView) : RecyclerView.ViewHolder(TextView)
