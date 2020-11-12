@@ -1,13 +1,31 @@
 package com.example.trilock.data.register_login.ui.notifications
 
-class People {
+class People(firstname: String, lastname: String, email: String, password: String){
 
-    lateinit var name: String
-    lateinit var type: String
+    lateinit var firstname: String
+    lateinit var lastname: String
+    lateinit var email: String
 
-//    public fetchPeople(var name: String, var type: String) {
+    init {
+        this.firstname = firstname
+    }
 
-//    }
+    init {
+        this.lastname = lastname
+    }
+
+    init {
+        this.email = email
+    }
+
+    init {
+
+    }
+
+
+//    public People () {}
+
+
 
 
 //    public void setName() {
