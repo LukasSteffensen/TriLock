@@ -19,7 +19,6 @@ class SettingsFragment : Fragment() {
 
     private lateinit var settingsViewModel: SettingsViewModel
     val PREFS_FILENAME = "SHARED_PREF"
-    private lateinit var preferencesManager: PreferencesManager
     private lateinit var sharedPreferences: SharedPreferences
     var isSwitched = false
 
@@ -44,8 +43,6 @@ class SettingsFragment : Fragment() {
         }
 
         switch.setOnCheckedChangeListener { compoundButton, isSwitched ->
-//            preferencesManager = PreferencesManager()
-//            preferencesManager.saveBioAuth(isSwitched)
             saveBioAuth(isSwitched)
             if (isSwitched){
                 switch.text = "Turn off biometric authentication"
@@ -62,6 +59,6 @@ class SettingsFragment : Fragment() {
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
         editor.putBoolean("SWITCH", isSwitched)
         editor.apply()
-        Log.i("Settingsfragment: ", "inside saveBioAuth fun$isSwitched")
+        Log.i("SettingsFragment: ", "inside saveBioAuth fun$isSwitched")
     }
 }
