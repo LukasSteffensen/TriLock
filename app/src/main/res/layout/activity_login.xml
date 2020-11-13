@@ -28,7 +28,7 @@
         android:layout_marginEnd="128dp"
         android:ems="10"
         android:inputType="textPassword"
-        android:text="@string/edittext_email_login"
+        android:hint="Password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,7 +43,7 @@
         android:layout_marginEnd="128dp"
         android:ems="10"
         android:inputType="textEmailAddress"
-        android:text="@string/edittext_email_login"
+        android:hint="Email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textview_login_title" />
@@ -58,4 +58,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edittext_password_login"
         app:layout_constraintVertical_bias="0.097" />
+
+    <ImageView
+        android:id="@+id/image_view_fingerprint"
+        android:layout_width="148dp"
+        android:layout_height="166dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.828"
+        app:srcCompat="@drawable/ic_baseline_fingerprint_24" />
 </androidx.constraintlayout.widget.ConstraintLayout>

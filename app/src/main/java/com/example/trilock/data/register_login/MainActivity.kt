@@ -1,7 +1,6 @@
 package com.example.trilock.data.register_login
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Color.red
 import android.os.Bundle
 import android.widget.ImageView
@@ -17,12 +16,8 @@ import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 
-    val PREFS_FILENAME = "sharedPrefs"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val prefs = this.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
 
         setContentView(R.layout.activity_main)
 

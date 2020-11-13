@@ -15,11 +15,13 @@ import android.os.CancellationSignal
 import android.os.Message
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
 import com.example.trilock.R
 import com.example.trilock.data.register_login.MainActivity
 import com.google.firebase.ktx.Firebase
@@ -59,12 +61,16 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+
+        val imageViewFingerprint = findViewById<ImageView>(R.id.image_view_fingerprint)
+        imageViewFingerprint.isGone = true
+
         sharedPreferences = getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
         isSwitched = sharedPreferences.getBoolean("SWITCH", false)
         Log.i("LoginActivity: ", isSwitched.toString())
         if (isSwitched) {
-            Toast.makeText(this, "Biometric authentication is turned on", LENGTH_SHORT).show()
-            // BIOMETRIC AUTHENTICATION STUFF GOES HERE
+
+            imageViewFingerprint.isGone = false
             checkBiometricSupport()
             val biometricPrompt = BiometricPrompt.Builder(this)
                     .setTitle("Biometric authentication")
@@ -80,11 +86,24 @@ class LoginActivity : AppCompatActivity() {
             // ALTERNATIVE LOG IN METHOD HERE
         }
 
-        val button = findViewById<Button>(R.id.button_login)
-        button?.setOnClickListener()
+        val buttonLogIn = findViewById<Button>(R.id.button_login)
+        buttonLogIn?.setOnClickListener()
         {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+        }
+
+        imageViewFingerprint.setOnClickListener(){
+            checkBiometricSupport()
+            val biometricPrompt = BiometricPrompt.Builder(this)
+                    .setTitle("Biometric authentication")
+                    .setSubtitle("Authentication required")
+                    .setDescription("Keep app safe")
+                    .setNegativeButton("Cancel",this.mainExecutor, DialogInterface.OnClickListener { dialog, which ->
+                        toast("Authentication cancelled")
+                    }).build()
+
+            biometricPrompt.authenticate(getCancellationSignal(), mainExecutor, authenticationCallback)
         }
     }
 
