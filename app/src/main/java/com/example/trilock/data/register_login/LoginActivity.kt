@@ -16,6 +16,7 @@ import android.os.Message
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.annotation.RequiresApi
@@ -24,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import com.example.trilock.R
 import com.example.trilock.data.register_login.MainActivity
+import com.example.trilock.data.register_login.RegisterActivity
 import com.google.firebase.ktx.Firebase
 import java.util.concurrent.Executor
 
@@ -61,6 +63,12 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        val textViewRegister = findViewById<TextView>(R.id.textViewRegister)
+
+        textViewRegister.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+        }
 
         val imageViewFingerprint = findViewById<ImageView>(R.id.image_view_fingerprint)
         imageViewFingerprint.isGone = true
@@ -73,9 +81,9 @@ class LoginActivity : AppCompatActivity() {
             imageViewFingerprint.isGone = false
             checkBiometricSupport()
             val biometricPrompt = BiometricPrompt.Builder(this)
-                    .setTitle("Biometric authentication")
-                    .setSubtitle("Authentication required")
-                    .setDescription("Keep app safe")
+                    .setTitle("Fingerprint Authentication")
+                    .setSubtitle("Authorized Fingerprint Required")
+                    .setDescription("Scan your fingerprint or press cancel to log in with email and password")
                     .setNegativeButton("Cancel",this.mainExecutor, DialogInterface.OnClickListener { dialog, which ->
                         toast("Authentication cancelled")
                     }).build()
@@ -89,6 +97,8 @@ class LoginActivity : AppCompatActivity() {
         val buttonLogIn = findViewById<Button>(R.id.button_login)
         buttonLogIn?.setOnClickListener()
         {
+            //Check if credentials match and user has verified their email
+
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
@@ -96,9 +106,9 @@ class LoginActivity : AppCompatActivity() {
         imageViewFingerprint.setOnClickListener(){
             checkBiometricSupport()
             val biometricPrompt = BiometricPrompt.Builder(this)
-                    .setTitle("Biometric authentication")
-                    .setSubtitle("Authentication required")
-                    .setDescription("Keep app safe")
+                    .setTitle("Fingerprint Authentication")
+                    .setSubtitle("Authorized Fingerprint Required")
+                    .setDescription("Scan your fingerprint or press cancel to log in with email and password")
                     .setNegativeButton("Cancel",this.mainExecutor, DialogInterface.OnClickListener { dialog, which ->
                         toast("Authentication cancelled")
                     }).build()
