@@ -14,15 +14,22 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.trilock.R
 import com.example.trilock.data.model.LoginActivity
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 
 class RegisterActivity : AppCompatActivity() {
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+
+        // Access a Cloud Firestore instance from your Activity
+        val db = Firebase.firestore
 
         val textViewSignIn = findViewById<TextView>(R.id.textViewLogin)
 
@@ -91,26 +98,36 @@ class RegisterActivity : AppCompatActivity() {
 
                 Log.i("RegisterActivity: ", "we hit the else!")
 
-            //Encryption of user info here
+                //Send verification email, maybe before encryption?
 
-            //DATABASE STUFF HERE
+                //Encryption of user info here
 
-            //Send verification email, maybe before encryption?
+                //DATABASE STUFF HERE
+                val user = hashMapOf(
+                    "Name" to name,
+                    "Phone" to phoneNumber,
+                    "Email" to email,
+                    "Password" to password
+                )
+
+                db.collection("users")
+                    .add(user)
+                    .addOnSuccessListener { documentReference ->
+                        Log.d("RegisterActivity: ", "DocumentSnapshot added with ID: ${documentReference.id}")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("RegisterActivity: ", "Error adding document", e)
+                    }
 
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
+            }
         }
-
-
-
-        }
-
     }
 
     private fun toast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
-
 
     //Checks if password meets the requirements
     private fun String.isPasswordValid(): Boolean {
