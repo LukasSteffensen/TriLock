@@ -12,7 +12,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.trilock.R
-import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 
