@@ -42,6 +42,24 @@ class SettingsFragment : Fragment() {
         mTextView = root.findViewById(R.id.text_view_name_setting)
 
         readData()
+        var userName: String
+        val docRef = db.collection("users").document("DLahkmTUQAt6cVBGcAOz")
+        docRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    Log.d("TAG", "DocumentSnapshot data: ${document.data}")
+                    userName = document.data!!["firstName"].toString() + " " + document.data!!["lastName"].toString()
+                    mTextView.text = userName
+                } else {
+                    Log.d("TAG", "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d("TAG", "get failed with ", exception)
+            }
+
+
+
 
 
 
@@ -62,6 +80,8 @@ class SettingsFragment : Fragment() {
                 switch.text = "Turn on biometric authentication"
             }
         }
+
+
         settingsViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
