@@ -24,7 +24,7 @@ class PeopleFragment : Fragment() {
     private lateinit var peopleViewModel: PeopleViewModel
     private lateinit var peopleRecyclerView: RecyclerView
     val db = Firebase.firestore
-    private lateinit var PeopleList: ArrayList<String>
+    private var PeopleList: ArrayList<String> = mutableListOf<String>("Sebastian", "Tobias", "Matti") as ArrayList<String>
     private lateinit var adapter: PeopleAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
 
@@ -38,19 +38,21 @@ class PeopleFragment : Fragment() {
             ViewModelProvider(this).get(PeopleViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_people, container, false)
         val textView: TextView = root.findViewById(R.id.text_people)
-
+        val testTextView: TextView = root.findViewById(R.id.text_view_test)
 
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
         linearLayoutManager = LinearLayoutManager(context)
         peopleRecyclerView.layoutManager = linearLayoutManager
-//        adapter = PeopleAdapter(PeopleList)
-//        peopleRecyclerView.adapter = adapter
+
+        adapter = PeopleAdapter(PeopleList)
+        peopleRecyclerView.adapter = adapter
 
         peopleViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
         return root
     }
+
 
     private fun dataFirestore() {
         //Trying to collect firstnames from Database. Not sure if works
