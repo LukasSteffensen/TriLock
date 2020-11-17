@@ -58,12 +58,6 @@ class SettingsFragment : Fragment() {
                 Log.d("TAG", "get failed with ", exception)
             }
 
-
-
-
-
-
-
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME,Context.MODE_PRIVATE)!!
         isSwitched = sharedPreferences.getBoolean("SWITCH", false)
         Log.i("SettingsFragment: ", isSwitched.toString())
@@ -106,7 +100,6 @@ class SettingsFragment : Fragment() {
                     for (document in result) {
                         Log.d("Hej med dig din bussema", "hi")
                         //userList.add(User(document["IewgWKy836z2QACxYHAM"].toString(), "User"))
-
 
                     }
                 }.addOnFailureListener { exception ->

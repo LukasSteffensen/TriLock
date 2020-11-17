@@ -26,6 +26,7 @@
     <string name="turn_on_biometric_authentication">Turn on biometric authentication</string>
     <!-- Strings related to people -->
     <string name="allow">Allow permissions</string>
+    <string name="allowed">Permissions granted</string>
     <string name="phone_number">Phone Number</string>
     <string name="name">Name</string>
     <string name="already_account">Already have an account? Sign in</string>

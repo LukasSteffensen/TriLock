@@ -18,7 +18,6 @@ class PeopleAdapter(val people: ArrayList<String>) : RecyclerView.Adapter<People
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleViewHolder {
-        //return PeopleViewHolder(LayoutInflater.from(context).inflate(R.layout.list_people, parent, false))
         val view = LayoutInflater.from(parent.context).inflate(R.layout.list_people, parent, false)
         return PeopleViewHolder(view)
     }
