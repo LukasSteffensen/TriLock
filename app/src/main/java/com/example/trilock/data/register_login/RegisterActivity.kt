@@ -29,7 +29,6 @@ import javax.crypto.spec.IvParameterSpec
 
 class RegisterActivity : AppCompatActivity() {
 
-    private val IV_LENGTH = 16
     private val charset = Charsets.UTF_8
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,23 +36,29 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
 
         //KeyGenerator
-        val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore")
-        val keyGenParameterSpec = KeyGenParameterSpec.Builder("MyKeyAlias",
-            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-            .build()
-
-        keyGenerator.init(keyGenParameterSpec)
-        keyGenerator.generateKey()
-
-        //TESTING ENCRYPTION AND DECRYPTION
-        val pair = encryptData("Hello, this is test")
-
-        val decryptedData: String = decryptData(pair.first, pair.second)
-
-        Log.i("Encryption test: ", pair.second.toString())
-        Log.i("Decryption test: ", decryptedData)
+//        val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore")
+//        val keyGenParameterSpec = KeyGenParameterSpec.Builder("MyKeyAlias",
+//            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+//            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+//            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+//            .build()
+//
+//        keyGenerator.init(keyGenParameterSpec)
+//        keyGenerator.generateKey()
+//
+//        //TESTING ENCRYPTION AND DECRYPTION
+//        val pair = encryptData("Hello, this is test")
+//
+//
+//        val cipher :Cipher = Cipher.getInstance("AES/CBC/NoPadding")
+//        cipher.init(Cipher.ENCRYPT_MODE, getKey())
+//
+//        val ivBytes = cipher.iv
+//
+//        val decryptedData: String = decryptData(ivBytes, pair.second)
+//
+//        Log.i("Encryption test: ", pair.second.toString())
+//        Log.i("Decryption test: ", decryptedData)
 
         //END TEST
 
@@ -146,8 +151,7 @@ class RegisterActivity : AppCompatActivity() {
                     "firstName" to firstName,
                     "lastName" to lastName,
                     "phone" to phoneNumber,
-                    "email" to email,
-                    "password" to password
+                    "email" to email
                 )
 
                 db.collection("users")
@@ -187,35 +191,35 @@ class RegisterActivity : AppCompatActivity() {
         return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
-    fun getKey(): SecretKey {
-        val keyStore = KeyStore.getInstance("AndroidKeyStore")
-        keyStore.load(null)
-
-        val secretKeyEntry = keyStore.getEntry("MyKeyAlias", null) as KeyStore.SecretKeyEntry
-        return secretKeyEntry.secretKey
-    }
-
-    fun encryptData(data: String): Pair<ByteArray, ByteArray> {
-        val cipher :Cipher = Cipher.getInstance("AES/CBC/NoPadding")
-
-        var temp :String = data
-        while(temp.toByteArray().size%16 != 0) {
-            temp+= "\u0020"
-        }
-        cipher.init(Cipher.ENCRYPT_MODE, getKey())
-
-        val ivBytes = cipher.iv
-
-        val encryptedBytes: ByteArray = cipher.doFinal(temp.toByteArray(Charsets.UTF_8))
-
-        return Pair(ivBytes, encryptedBytes)
-    }
-
-    fun decryptData(ivBytes: ByteArray, data: ByteArray): String {
-        val cipher = Cipher.getInstance("AES/CBC/NoPadding")
-        val spec = IvParameterSpec(ivBytes)
-
-        cipher.init(Cipher.DECRYPT_MODE, getKey(),spec)
-        return cipher.doFinal(data).toString(Charsets.UTF_8).trim()
-    }
+//    fun getKey(): SecretKey {
+//        val keyStore = KeyStore.getInstance("AndroidKeyStore")
+//        keyStore.load(null)
+//
+//        val secretKeyEntry = keyStore.getEntry("MyKeyAlias", null) as KeyStore.SecretKeyEntry
+//        return secretKeyEntry.secretKey
+//    }
+//
+//    fun encryptData(data: String): Pair<ByteArray, ByteArray> {
+//        val cipher :Cipher = Cipher.getInstance("AES/CBC/NoPadding")
+//
+//        var temp :String = data
+//        while(temp.toByteArray().size%16 != 0) {
+//            temp+= "\u0020"
+//        }
+//        cipher.init(Cipher.ENCRYPT_MODE, getKey())
+//
+//        val ivBytes = cipher.iv
+//
+//        val encryptedBytes: ByteArray = cipher.doFinal(temp.toByteArray(Charsets.UTF_8))
+//
+//        return Pair(ivBytes, encryptedBytes)
+//    }
+//
+//    fun decryptData(ivBytes: ByteArray, data: ByteArray): String {
+//        val cipher = Cipher.getInstance("AES/CBC/NoPadding")
+//        val spec = IvParameterSpec(ivBytes)
+//
+//        cipher.init(Cipher.DECRYPT_MODE, getKey(),spec)
+//        return cipher.doFinal(data).toString(Charsets.UTF_8).trim()
+//    }
 }
