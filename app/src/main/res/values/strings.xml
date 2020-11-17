@@ -31,5 +31,7 @@
     <string name="already_account">Already have an account? Sign in</string>
     <string name="not_account">Don\'t have an account? Register!</string>
     <string name="register">Register</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
 
 </resources>
