@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.text.TextUtils
+import android.util.Base64
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -15,10 +16,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.trilock.R
 import com.example.trilock.data.model.LoginActivity
+import com.example.trilock.data.register_login.classes.Encryption
+import com.google.firebase.firestore.Blob
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.nio.charset.Charset
 import java.security.KeyStore
+import java.util.HashMap
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import javax.crypto.Cipher
@@ -29,38 +33,9 @@ import javax.crypto.spec.IvParameterSpec
 
 class RegisterActivity : AppCompatActivity() {
 
-    private val charset = Charsets.UTF_8
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-
-        //KeyGenerator
-//        val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore")
-//        val keyGenParameterSpec = KeyGenParameterSpec.Builder("MyKeyAlias",
-//            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-//            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-//            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-//            .build()
-//
-//        keyGenerator.init(keyGenParameterSpec)
-//        keyGenerator.generateKey()
-//
-//        //TESTING ENCRYPTION AND DECRYPTION
-//        val pair = encryptData("Hello, this is test")
-//
-//
-//        val cipher :Cipher = Cipher.getInstance("AES/CBC/NoPadding")
-//        cipher.init(Cipher.ENCRYPT_MODE, getKey())
-//
-//        val ivBytes = cipher.iv
-//
-//        val decryptedData: String = decryptData(ivBytes, pair.second)
-//
-//        Log.i("Encryption test: ", pair.second.toString())
-//        Log.i("Decryption test: ", decryptedData)
-
-        //END TEST
 
         // Access a Cloud Firestore instance from your Activity
         val db = Firebase.firestore
@@ -135,10 +110,8 @@ class RegisterActivity : AppCompatActivity() {
                 val imm: InputMethodManager =
                     getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(editTextPassword, InputMethodManager.SHOW_IMPLICIT)
-                toast("Password must be at least 8 characters and contain at least one number, uppercase letter and lowercase letter")
+                toast("Password must be at least 8 characters and contain at least a number, uppercase letter and lowercase letter")
             } else {
-
-
 
                 Log.i("RegisterActivity: ", "we hit the else!")
 
@@ -146,12 +119,38 @@ class RegisterActivity : AppCompatActivity() {
 
                 //Encryption of user info here
 
+                val encryptedFirstName = Encryption().encrypt(firstName.toByteArray(Charsets.UTF_8), password.toCharArray())
+                val encryptedLastName = Encryption().encrypt(lastName.toByteArray(Charsets.UTF_8), password.toCharArray())
+                val encryptedPhoneNumber = Encryption().encrypt(phoneNumber.toByteArray(Charsets.UTF_8), password.toCharArray())
+                val encryptedEmail = Encryption().encrypt(email.toByteArray(Charsets.UTF_8), password.toCharArray())
+
+                val encryptedFirstNameList = HashMap<String, String>()
+                val encryptedLastNameList = HashMap<String, String>()
+                val encryptedPhoneNumberList = HashMap<String, String>()
+                val encryptedEmailList = HashMap<String, String>()
+
+                encryptedFirstNameList["salt"] = Base64.encodeToString(encryptedFirstName["iv"],Base64.NO_WRAP)
+                encryptedFirstNameList["iv"] = Base64.encodeToString(encryptedFirstName["salt"],Base64.NO_WRAP)
+                encryptedFirstNameList["encrypted"] = Base64.encodeToString(encryptedFirstName["encrypted"],Base64.NO_WRAP)
+
+                encryptedLastNameList["salt"] = Base64.encodeToString(encryptedLastName["salt"],Base64.NO_WRAP)
+                encryptedLastNameList["iv"] = Base64.encodeToString(encryptedLastName["iv"],Base64.NO_WRAP)
+                encryptedLastNameList["encrypted"] = Base64.encodeToString(encryptedLastName["encrypted"],Base64.NO_WRAP)
+
+                encryptedPhoneNumberList["salt"] = Base64.encodeToString(encryptedPhoneNumber["salt"],Base64.NO_WRAP)
+                encryptedPhoneNumberList["iv"] = Base64.encodeToString(encryptedPhoneNumber["iv"],Base64.NO_WRAP)
+                encryptedPhoneNumberList["encrypted"] = Base64.encodeToString(encryptedPhoneNumber["encrypted"],Base64.NO_WRAP)
+
+                encryptedEmailList["salt"] = Base64.encodeToString(encryptedEmail["salt"],Base64.NO_WRAP)
+                encryptedEmailList["iv"] = Base64.encodeToString(encryptedEmail["iv"],Base64.NO_WRAP)
+                encryptedEmailList["encrypted"] = Base64.encodeToString(encryptedEmail["encrypted"],Base64.NO_WRAP)
+
                 //DATABASE STUFF HERE
                 val user = hashMapOf(
-                    "firstName" to firstName,
-                    "lastName" to lastName,
-                    "phone" to phoneNumber,
-                    "email" to email
+                    "firstName" to encryptedFirstNameList,
+                    "lastName" to encryptedLastNameList,
+                    "phone" to encryptedPhoneNumberList,
+                    "email" to encryptedEmailList
                 )
 
                 db.collection("users")
@@ -191,35 +190,4 @@ class RegisterActivity : AppCompatActivity() {
         return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
-//    fun getKey(): SecretKey {
-//        val keyStore = KeyStore.getInstance("AndroidKeyStore")
-//        keyStore.load(null)
-//
-//        val secretKeyEntry = keyStore.getEntry("MyKeyAlias", null) as KeyStore.SecretKeyEntry
-//        return secretKeyEntry.secretKey
-//    }
-//
-//    fun encryptData(data: String): Pair<ByteArray, ByteArray> {
-//        val cipher :Cipher = Cipher.getInstance("AES/CBC/NoPadding")
-//
-//        var temp :String = data
-//        while(temp.toByteArray().size%16 != 0) {
-//            temp+= "\u0020"
-//        }
-//        cipher.init(Cipher.ENCRYPT_MODE, getKey())
-//
-//        val ivBytes = cipher.iv
-//
-//        val encryptedBytes: ByteArray = cipher.doFinal(temp.toByteArray(Charsets.UTF_8))
-//
-//        return Pair(ivBytes, encryptedBytes)
-//    }
-//
-//    fun decryptData(ivBytes: ByteArray, data: ByteArray): String {
-//        val cipher = Cipher.getInstance("AES/CBC/NoPadding")
-//        val spec = IvParameterSpec(ivBytes)
-//
-//        cipher.init(Cipher.DECRYPT_MODE, getKey(),spec)
-//        return cipher.doFinal(data).toString(Charsets.UTF_8).trim()
-//    }
 }
