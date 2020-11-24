@@ -30,11 +30,8 @@ class PeopleFragment : Fragment() {
     private lateinit var peopleViewModel: PeopleViewModel
     private lateinit var peopleRecyclerView: RecyclerView
     val db = Firebase.firestore
-    private lateinit var PeopleList: ArrayList<String>
-    private var UserList: ArrayList<String> = mutableListOf<String>() as ArrayList<String>
     private lateinit var adapter: PeopleAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
-    private lateinit var testTextView: TextView
 
 
     override fun onCreateView(
@@ -45,28 +42,19 @@ class PeopleFragment : Fragment() {
         peopleViewModel =
             ViewModelProvider(this).get(PeopleViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_people, container, false)
-        val textView: TextView = root.findViewById(R.id.text_people)
         val rcl = inflater.inflate(R.layout.list_people, container,false)
         val peopleSwitch: Switch = rcl.findViewById(R.id.switch_people)
-        testTextView = root.findViewById(R.id.text_view_test)
-
-        PeopleList = mutableListOf("Sebastian", "Tobias", "Katrine", "Karl", "Bob", "Ulla") as ArrayList<String>
 
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
         linearLayoutManager = LinearLayoutManager(context)
         peopleRecyclerView.layoutManager = linearLayoutManager
-        adapter = PeopleAdapter(PeopleList)
-        peopleRecyclerView.adapter = adapter
 
-        testTextView.text = dataFirestore().toString()
+        dataFirestore()
 
-        peopleViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
         return root
     }
 
-    private fun dataFirestore(): ArrayList<String> {
+    private fun dataFirestore() {
 
         //Trying to collect firstnames from Database.
         val userList: ArrayList<String> = mutableListOf<String>() as ArrayList<String>
@@ -77,6 +65,8 @@ class PeopleFragment : Fragment() {
                         val name = document.data["firstName"].toString()
                         userList.add(name)
                     }
+                adapter = PeopleAdapter(userList)
+                peopleRecyclerView.adapter = adapter
                     Toast.makeText(context, "toast", Toast.LENGTH_SHORT).show()
                 }
 
@@ -84,7 +74,6 @@ class PeopleFragment : Fragment() {
                 Log.d("TAG", "get failed with ", exception)
                 Toast.makeText(context, "Firestore not working", Toast.LENGTH_SHORT).show()
             }
-        return userList
     }
 }
 
