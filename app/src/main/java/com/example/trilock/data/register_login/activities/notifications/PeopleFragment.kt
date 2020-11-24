@@ -65,7 +65,7 @@ class PeopleFragment : Fragment() {
                         val name = document.data["firstName"].toString()
                         userList.add(name)
                     }
-                adapter = PeopleAdapter(userList)
+                adapter = PeopleAdapter(userList, 1)
                 peopleRecyclerView.adapter = adapter
                     Toast.makeText(context, "toast", Toast.LENGTH_SHORT).show()
                 }
