@@ -7,7 +7,9 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.trilock.R
 
-class PeopleAdapter(val people: ArrayList<String>) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
+class PeopleAdapter(val people: ArrayList<String>, val type:Int) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
+
+    lateinit var view: TextView
 
     class PeopleViewHolder(peopleView: View) : RecyclerView.ViewHolder(peopleView) {
 
@@ -18,7 +20,14 @@ class PeopleAdapter(val people: ArrayList<String>) : RecyclerView.Adapter<People
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_people, parent, false)
+        //return PeopleViewHolder(LayoutInflater.from(context).inflate(R.layout.list_people, parent, false))
+        if(type == 1) {
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.list_people, parent, false)
+        } else {
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.list_history, parent, false)
+        }
         return PeopleViewHolder(view)
     }
 
