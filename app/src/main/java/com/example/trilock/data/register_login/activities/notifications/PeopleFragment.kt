@@ -1,28 +1,20 @@
 package com.example.trilock.data.register_login.activities.notifications
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Switch
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trilock.R
 import com.example.trilock.data.model.ui.people.PeopleViewModel
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import org.w3c.dom.Document
 import kotlin.collections.mutableListOf as mutableListOf
 
 class PeopleFragment : Fragment() {
@@ -65,7 +57,7 @@ class PeopleFragment : Fragment() {
                         val name = document.data["firstName"].toString()
                         userList.add(name)
                     }
-                adapter = PeopleAdapter(userList, 1)
+                adapter = PeopleAdapter(userList)
                 peopleRecyclerView.adapter = adapter
                     Toast.makeText(context, "toast", Toast.LENGTH_SHORT).show()
                 }
