@@ -50,12 +50,8 @@ class HistoryFragment : Fragment() {
         val eventList: ArrayList<Event> = ArrayList()
         db.collection("locks").document("HUfT5rj0QTjE7FgyGhfu").collection("events").get().addOnSuccessListener { result ->
             for (document in result) {
-                val isLocked = document.data["isUnlocked"].toString()
-                var hej: Boolean = false
-                if(isLocked.equals("true"))
-                    hej = true
                 val Event = Event(document.data["firstName"].toString(), document.data["timeStamp"].toString(),
-                    hej)
+                    document.data["isLocked"].toString() == "true")
                 eventList.add(Event)
             }
             adapter = HistoryAdapter(eventList)
