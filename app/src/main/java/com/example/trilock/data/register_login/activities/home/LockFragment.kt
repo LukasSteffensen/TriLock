@@ -92,7 +92,5 @@ class LockFragment : Fragment() {
                 .addOnSuccessListener { Log.d(TAG, "Lock is now locked") }
                 .addOnFailureListener { e -> Log.w(TAG, "Error in locks document", e) }
         }
-
     }
-
 }
