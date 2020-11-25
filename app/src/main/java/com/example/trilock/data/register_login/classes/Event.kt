@@ -4,16 +4,16 @@ class Event {
 
     lateinit var firstName: String
     lateinit var timeStamp: String
-    var isUnlocked: Boolean = false
+    var locked: Boolean = false
 
     constructor(){
 
     }
 
-    constructor(firstName: String, timeStamp: String, isUnlocked: Boolean) {
+    constructor(firstName: String, timeStamp: String, locked: Boolean) {
         this.firstName = firstName
         this.timeStamp = timeStamp
-        this.isUnlocked = isUnlocked
+        this.locked = locked
     }
 
 

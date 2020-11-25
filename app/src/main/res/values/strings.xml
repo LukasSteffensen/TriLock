@@ -44,6 +44,9 @@
     <string name="cancel">Cancel</string>
     <string name="accept">Accept</string>
 
+    <!-- Strings related to activity history -->
+    <string name="history_lock"> has locked the TriLock</string>
+    <string name="history_unlock"> has unlocked the TriLock</string>
 
 
 </resources>

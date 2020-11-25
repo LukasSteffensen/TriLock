@@ -5,7 +5,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,8 +52,9 @@ class HistoryFragment : Fragment() {
         val eventList: ArrayList<Event> = ArrayList()
         db.collection("locks").document("HUfT5rj0QTjE7FgyGhfu").collection("events").get().addOnSuccessListener { result ->
             for (document in result) {
-                val Event = Event(document.data["firstName"].toString(), document.data["timeStamp"].toString(),
-                    document.data["isLocked"].toString() == "true")
+                val Event = Event(
+                    document.data["firstName"].toString(), document.data["timeStamp"].toString(),
+                    document.data["locked"].toString() == "true")
                 eventList.add(Event)
             }
             adapter = HistoryAdapter(eventList)

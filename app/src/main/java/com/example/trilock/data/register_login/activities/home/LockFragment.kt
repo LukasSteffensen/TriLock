@@ -16,9 +16,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.trilock.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.Timestamp.now
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.NonCancellable.cancel
+import java.security.Timestamp
 
 class LockFragment : Fragment() {
 
@@ -50,10 +52,28 @@ class LockFragment : Fragment() {
         imageViewLock.setOnClickListener {
             Log.i(TAG," imageView clicked")
             lockStatusChange()
+            createEvent()
             currentLockStatus()
         }
 
         return root
+    }
+
+    private fun createEvent() {
+        val todayAsTimestamp = now().toDate()
+        val newEvent = hashMapOf(
+            "firstName" to "Bob",
+            "locked" to isLocked.toString(),
+            "timeStamp" to todayAsTimestamp.toString()
+        )
+
+        db.collection("locks")
+            .document("HUfT5rj0QTjE7FgyGhfu")
+            .collection("events")
+            .add(newEvent)
+            .addOnSuccessListener { document ->
+                Toast.makeText(context, "New event created", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun currentLockStatus() {
