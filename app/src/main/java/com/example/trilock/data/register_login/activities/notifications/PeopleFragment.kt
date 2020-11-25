@@ -65,26 +65,26 @@ class PeopleFragment : Fragment() {
             .addOnSuccessListener { result ->
                     for (document in result) {
 
-                        val map = document.get("firstName") as Map <String, String>
-
-                        val password = "Poop1234"
-
-                        val encryptedString: String = map.get("encrypted") as String
-                        val ivString: String = map.get("iv") as String
-                        val saltString: String = map.get("salt") as String
-
-                        val encrypted = Base64.decode(encryptedString, Base64.NO_WRAP)
-                        val iv = Base64.decode(ivString, Base64.NO_WRAP)
-                        val salt = Base64.decode(saltString, Base64.NO_WRAP)
-
-                        val decrypted = Encryption().decrypt(
-                            hashMapOf("iv" to iv, "salt" to salt, "encrypted" to encrypted), password)
-                        val name: String = Base64.encodeToString(decrypted, Base64.NO_WRAP)
-
-//                        val name = document.data["firstName"].toString()
+//                        val map = document.get("firstName") as Map <String, String>
+//
+//                        val password = "Poop1234"
+//
+//                        val encryptedString: String = map.get("encrypted") as String
+//                        val ivString: String = map.get("iv") as String
+//                        val saltString: String = map.get("salt") as String
+//
+//                        val encrypted = Base64.decode(encryptedString, Base64.NO_WRAP)
+//                        val iv = Base64.decode(ivString, Base64.NO_WRAP)
+//                        val salt = Base64.decode(saltString, Base64.NO_WRAP)
+//
+//                        val decrypted = Encryption().decrypt(
+//                            hashMapOf("iv" to iv, "salt" to salt, "encrypted" to encrypted), password)
+//                        val name: String = Base64.encodeToString(decrypted, Base64.NO_WRAP)
+//
+                        val name = document.data["firstName"].toString()
                         userList.add(name)
                     }
-                adapter = PeopleAdapter(userList, 1)
+                adapter = PeopleAdapter(userList)
                 peopleRecyclerView.adapter = adapter
                     Toast.makeText(context, "toast", Toast.LENGTH_SHORT).show()
                 }

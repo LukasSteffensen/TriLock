@@ -52,4 +52,8 @@ class LockFragment : Fragment() {
 
         return root
     }
+
+    fun changeLockStatus(lock: String) {
+
+    }
 }

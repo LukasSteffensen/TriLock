@@ -31,7 +31,7 @@ internal class Encryption {
 
             // 2
             //PBKDF2 - derive the key from the password, don't use passwords directly
-            val password = CharArray(password.length)
+            val password = password.toCharArray()
 
             val pbKeySpec = PBEKeySpec(password, salt, 1324, 256)
             val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")

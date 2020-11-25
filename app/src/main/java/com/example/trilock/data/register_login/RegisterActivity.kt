@@ -3,10 +3,7 @@ package com.example.trilock.data.register_login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
 import android.text.TextUtils
-import android.util.Base64
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -16,173 +13,109 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.trilock.R
 import com.example.trilock.data.model.LoginActivity
-import com.example.trilock.data.register_login.classes.Encryption
-import com.google.firebase.firestore.Blob
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import java.nio.charset.Charset
-import java.security.KeyStore
 import java.util.HashMap
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
-import javax.crypto.spec.IvParameterSpec
 
 
 class RegisterActivity : AppCompatActivity() {
+
+    private val TAG = "RegisterActivity"
+
+    private lateinit var uid: String
+
+    private lateinit var user: HashMap<String, String>
+
+    var auth: FirebaseAuth = Firebase.auth
+
+    lateinit var currentUser: FirebaseUser
+
+    // Access a Cloud Firestore instance from your Activity
+    val db = Firebase.firestore
+
+    lateinit var editTextFirstName: EditText
+    lateinit var editTextLastName: EditText
+    lateinit var editTextPhone: EditText
+    lateinit var editTextEmail: EditText
+    lateinit var editTextPassword: EditText
+
+    lateinit var email: String
+    lateinit var password: String
+    lateinit var firstName: String
+    lateinit var lastName: String
+    lateinit var phoneNumber: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // Access a Cloud Firestore instance from your Activity
-        val db = Firebase.firestore
+        currentUser = auth.currentUser!!
 
         val textViewSignIn = findViewById<TextView>(R.id.textViewLogin)
-
-        val editTextFirstName = findViewById<EditText>(R.id.editTextTextFirstName)
-        val editTextLastName = findViewById<EditText>(R.id.editTextTextLastName)
-        val editTextPhone = findViewById<EditText>(R.id.editTextPhone)
-        val editTextEmail = findViewById<EditText>(R.id.editTextTextEmailAddress)
-        val editTextPassword = findViewById<EditText>(R.id.editTextTextPassword)
 
         textViewSignIn.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
 
+        editTextFirstName = findViewById(R.id.editTextTextFirstName)
+        editTextLastName = findViewById<EditText>(R.id.editTextTextLastName)
+        editTextPhone = findViewById<EditText>(R.id.editTextPhone)
+        editTextEmail = findViewById<EditText>(R.id.editTextTextEmailAddress)
+        editTextPassword = findViewById<EditText>(R.id.editTextTextPassword)
+
         val buttonRegister = findViewById<Button>(R.id.buttonRegister)
 
         buttonRegister.setOnClickListener {
-            val firstName = editTextFirstName.text.toString().trim()
-            val lastName = editTextLastName.text.toString().trim()
-            val phoneNumber = editTextPhone.text.toString().trim()
-            val email = editTextEmail.text.toString().trim()
-            val password = editTextPassword.text.toString().trim()
+            firstName = editTextFirstName.text.toString().trim()
+            lastName = editTextLastName.text.toString().trim()
+            phoneNumber = editTextPhone.text.toString().trim()
+            email = editTextEmail.text.toString().trim()
+            password = editTextPassword.text.toString().trim()
 
             //Checks if all the edittexts are empty and if some requirements are not met
             if (firstName.isEmpty()) {
-                editTextFirstName.requestFocus()
-                val imm: InputMethodManager =
-                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(editTextFirstName, InputMethodManager.SHOW_IMPLICIT)
-                toast("Please put in your first name")
+                inputAgain(editTextFirstName, "Please put in your first name")
             } else if (lastName.isEmpty()) {
-                editTextLastName.requestFocus()
-                val imm: InputMethodManager =
-                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(editTextLastName, InputMethodManager.SHOW_IMPLICIT)
-                toast("Please put in your last name")
+                inputAgain(editTextLastName, "Please put in your last name")
             } else if (phoneNumber.isEmpty()) {
-                editTextPhone.requestFocus()
-                val imm: InputMethodManager =
-                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(editTextPhone, InputMethodManager.SHOW_IMPLICIT)
-                toast("Please put in your phone number")
+                inputAgain(editTextPhone, "Please put in your phone number")
             } else if (phoneNumber.length != 8) {
-                editTextPhone.requestFocus()
-                val imm: InputMethodManager =
-                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(editTextPhone, InputMethodManager.SHOW_IMPLICIT)
-                toast("Please enter a valid phone number")
+                inputAgain(editTextPhone, "Please enter a valid phone number")
             } else if (email.isEmpty()) {
-                editTextEmail.requestFocus()
-                val imm: InputMethodManager =
-                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(editTextEmail, InputMethodManager.SHOW_IMPLICIT)
-                toast("Please put in your email address")
+                inputAgain(editTextEmail, "Please put in your email address")
             } else if (!email.isEmailValid()) {
-                editTextEmail.requestFocus()
-                val imm: InputMethodManager =
-                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(editTextEmail, InputMethodManager.SHOW_IMPLICIT)
-                toast("Please enter a valid email address")
+                inputAgain(editTextEmail, "Please enter a valid email address")
             } else if (password.isEmpty()) {
-                editTextPassword.requestFocus()
-                val imm: InputMethodManager =
-                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(editTextPassword, InputMethodManager.SHOW_IMPLICIT)
-                toast("Please put in your password")
+                inputAgain(editTextPassword, "Please put in your password")
             } else if (!password.isPasswordValid()) {
-                editTextPassword.requestFocus()
-                val imm: InputMethodManager =
-                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(editTextPassword, InputMethodManager.SHOW_IMPLICIT)
-                toast("Password must be at least 8 characters and contain at least a number, uppercase letter and lowercase letter")
+                inputAgain(editTextPassword, "Password must be at least 8 characters and contain at least a number, uppercase letter and lowercase letter")
             } else {
+                createUserAndSendEmail()
 
                 Log.i("RegisterActivity: ", "we hit the else!")
 
-                //Send verification email, maybe before encryption?
-
-                //Encryption of user info here
-
-                val encryptedFirstName = Encryption().encrypt(firstName.toByteArray(Charsets.UTF_8), password)
-                val encryptedLastName = Encryption().encrypt(lastName.toByteArray(Charsets.UTF_8), password)
-                val encryptedPhoneNumber = Encryption().encrypt(phoneNumber.toByteArray(Charsets.UTF_8), password)
-                val encryptedEmail = Encryption().encrypt(email.toByteArray(Charsets.UTF_8), password)
-
-                val decryptedFirstName = Encryption().decrypt(encryptedFirstName, password)
-                val decryptedFirstNameString = Base64.encodeToString(decryptedFirstName, Base64.NO_WRAP)
-
-                Log.i("Register first decrypt:", "" + decryptedFirstNameString)
-
-                val encryptedFirstNameList = HashMap<String, String>()
-                val encryptedLastNameList = HashMap<String, String>()
-                val encryptedPhoneNumberList = HashMap<String, String>()
-                val encryptedEmailList = HashMap<String, String>()
-
-                encryptedFirstNameList["salt"] = Base64.encodeToString(encryptedFirstName["salt"],Base64.NO_WRAP)
-                encryptedFirstNameList["iv"] = Base64.encodeToString(encryptedFirstName["iv"],Base64.NO_WRAP)
-                encryptedFirstNameList["encrypted"] = Base64.encodeToString(encryptedFirstName["encrypted"],Base64.NO_WRAP)
-
-                val encrypted = Base64.decode(encryptedFirstNameList["encrypted"], Base64.NO_WRAP)
-                val iv = Base64.decode(encryptedFirstNameList["iv"], Base64.NO_WRAP)
-                val salt = Base64.decode(encryptedFirstNameList["salt"], Base64.NO_WRAP)
-
-                val decrypted = Encryption().decrypt(
-                    hashMapOf("iv" to iv, "salt" to salt, "encrypted" to encrypted), password)
-
-                val name: String = Base64.encodeToString(decrypted, Base64.NO_WRAP)
-
-                Log.i("Register decryption: ", ""+name)
-
-
-                encryptedLastNameList["salt"] = Base64.encodeToString(encryptedLastName["salt"],Base64.NO_WRAP)
-                encryptedLastNameList["iv"] = Base64.encodeToString(encryptedLastName["iv"],Base64.NO_WRAP)
-                encryptedLastNameList["encrypted"] = Base64.encodeToString(encryptedLastName["encrypted"],Base64.NO_WRAP)
-
-                encryptedPhoneNumberList["salt"] = Base64.encodeToString(encryptedPhoneNumber["salt"],Base64.NO_WRAP)
-                encryptedPhoneNumberList["iv"] = Base64.encodeToString(encryptedPhoneNumber["iv"],Base64.NO_WRAP)
-                encryptedPhoneNumberList["encrypted"] = Base64.encodeToString(encryptedPhoneNumber["encrypted"],Base64.NO_WRAP)
-
-                encryptedEmailList["salt"] = Base64.encodeToString(encryptedEmail["salt"],Base64.NO_WRAP)
-                encryptedEmailList["iv"] = Base64.encodeToString(encryptedEmail["iv"],Base64.NO_WRAP)
-                encryptedEmailList["encrypted"] = Base64.encodeToString(encryptedEmail["encrypted"],Base64.NO_WRAP)
-
-                //DATABASE STUFF HERE
-                val user = hashMapOf(
-                    "firstName" to encryptedFirstNameList,
-                    "lastName" to encryptedLastNameList,
-                    "phone" to encryptedPhoneNumberList,
-                    "email" to encryptedEmailList
+                user = hashMapOf<String, String>(
+                    "firstName" to firstName,
+                    "lastName" to lastName,
+                    "phone" to phoneNumber,
+                    "email" to email
                 )
-
-                db.collection("users")
-                    .add(user)
-                    .addOnSuccessListener { documentReference ->
-                        Log.d("RegisterActivity: ", "DocumentSnapshot added with ID: ${documentReference.id}")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("RegisterActivity: ", "Error adding document", e)
-                    }
-
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
             }
         }
+    }
+
+    private fun inputAgain(editText: EditText, toast: String) {
+        editText.requestFocus()
+        val imm: InputMethodManager =
+            getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
+        toast(toast)
     }
 
     private fun toast(message: String) {
@@ -205,6 +138,46 @@ class RegisterActivity : AppCompatActivity() {
     //Checks if email is valid
     private fun String.isEmailValid(): Boolean {
         return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
+    }
+
+    private fun addUserToDatabase() {
+        db.collection("users")
+        .document(uid).set(user)
+        .addOnSuccessListener {
+            Log.d("RegisterActivity: ", "DocumentSnapshot added with ID: $uid")
+        }
+        .addOnFailureListener { e ->
+            Log.w("RegisterActivity: ", "Error adding document", e)
+        }
+
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun createUserAndSendEmail() {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    auth.currentUser?.sendEmailVerification()
+                        ?.addOnCompleteListener(this) {
+                            if (task.isSuccessful) {
+                                toast("A verification email has been sent")
+                                addUserToDatabase()
+                            }
+                        }
+                    uid = auth.currentUser?.uid.toString()
+                    auth.signOut()
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "createUserWithEmail:success")
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+                }
+
+                // ...
+            }
     }
 
 }

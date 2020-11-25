@@ -63,16 +63,11 @@ class SettingsFragment : Fragment() {
         Log.i("SettingsFragment: ", isSwitched.toString())
         if (isSwitched) {
             switch.isChecked = true
-            switch.text = "Turn off biometric authentication"
+            switch.text = "Biometric authentication"
         }
 
         switch.setOnCheckedChangeListener { compoundButton, isSwitched ->
             saveBioAuth(isSwitched)
-            if (isSwitched){
-                switch.text = "Turn off biometric authentication"
-            } else {
-                switch.text = "Turn on biometric authentication"
-            }
         }
 
 
@@ -98,7 +93,7 @@ class SettingsFragment : Fragment() {
                     toast("Hej working")
                     val userList = ArrayList<User>()
                     for (document in result) {
-                        Log.d("Hej med dig din bussema", "hi")
+                        Log.d("Hej med dig din bussema", "nd")
                         //userList.add(User(document["IewgWKy836z2QACxYHAM"].toString(), "User"))
 
                     }

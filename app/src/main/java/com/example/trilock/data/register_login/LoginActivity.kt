@@ -14,10 +14,7 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.Message
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import android.widget.Toast.LENGTH_SHORT
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -26,14 +23,26 @@ import androidx.core.view.isGone
 import com.example.trilock.R
 import com.example.trilock.data.register_login.MainActivity
 import com.example.trilock.data.register_login.RegisterActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity() {
 
+    private val TAG = "LoginActivity"
+
     lateinit var sharedPreferences: SharedPreferences
     var isSwitched = false
     val PREFS_FILENAME = "SHARED_PREF"
+
+    lateinit var email: String
+    lateinit var password: String
+
+    lateinit var editTextEmail: EditText
+    lateinit var editTextPassword: EditText
+
+    var auth: FirebaseAuth = Firebase.auth
 
     private var cancellationSignal: CancellationSignal? = null
 
@@ -65,6 +74,9 @@ class LoginActivity : AppCompatActivity() {
 
         val textViewRegister = findViewById<TextView>(R.id.textViewRegister)
 
+        editTextEmail = findViewById(R.id.edittext_email_login)
+        editTextPassword = findViewById(R.id.edittext_password_login)
+
         textViewRegister.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
@@ -76,7 +88,7 @@ class LoginActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
         isSwitched = sharedPreferences.getBoolean("SWITCH", false)
         Log.i("LoginActivity: ", isSwitched.toString())
-        if (isSwitched) {
+        if (isSwitched && auth.currentUser != null) {
 
             imageViewFingerprint.isGone = false
             checkBiometricSupport()
@@ -97,10 +109,44 @@ class LoginActivity : AppCompatActivity() {
         val buttonLogIn = findViewById<Button>(R.id.button_login)
         buttonLogIn?.setOnClickListener()
         {
-            //Check if credentials match and user has verified their email
+            email = editTextEmail.text.toString().trim()
+            password = editTextPassword.text.toString().trim()
+            //Check if credentials match and user has verified their email,
+            //I put a lot of placeholder code as comments here until authentication is ready
+//            email =
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        // CHECK EMAIL VerifICATION
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithEmail:success")
+                        val user = auth.currentUser
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithEmail:failure", task.exception)
+                        Toast.makeText(baseContext, "Authentication failed.",
+                            Toast.LENGTH_SHORT).show()
+                        // ...
+                    }
+
+                    // ...
+                }
+            //if (!authenticationSuccess) {
+//            toast("authentication unsuccessful")
+//        } else if (!emailVerified){
+//                        toast("Please verify your email")
+//        } else {
+
+            //Maybe check if this is another user, if not then don't do it
+            //if (!sameUser) {
+            val editor: SharedPreferences.Editor = sharedPreferences.edit()
+            editor.putBoolean("SWITCH", false)
+            editor.apply()
+//          }
 
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+//          }
         }
 
         imageViewFingerprint.setOnClickListener(){
