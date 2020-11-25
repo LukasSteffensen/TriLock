@@ -17,6 +17,7 @@
     <string name="users">Users</string>
     <string name="activity_history">Activity History</string>
     <string name="lock">Lock</string>
+    <string name="unlock">Unlock</string>
     <string name="unlocked">Unlocked</string>
     <string name="locked">Locked</string>
     <!-- Strings related to settings -->
@@ -34,5 +35,15 @@
     <string name="register">Register</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
+
+    <!-- Strings related to Lock fragment -->
+    <string name="lock_title_alert">Lock TriLock</string>
+    <string name="unlock_title_alert">Unlock TriLock</string>
+    <string name="lock_support_lock">Do you want to lock your TriLock?</string>
+    <string name="lock_support_unlock">Do you want to unlock your TriLock?</string>
+    <string name="cancel">Cancel</string>
+    <string name="accept">Accept</string>
+
+
 
 </resources>

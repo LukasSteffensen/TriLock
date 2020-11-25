@@ -1,5 +1,6 @@
 package com.example.trilock.data.register_login.activities.notifications
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -34,7 +35,7 @@ class PeopleFragment : Fragment() {
         peopleViewModel =
             ViewModelProvider(this).get(PeopleViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_people, container, false)
-        val rcl = inflater.inflate(R.layout.list_people, container,false)
+        val rcl = inflater.inflate(R.layout.list_people, container, false)
         val peopleSwitch: Switch = rcl.findViewById(R.id.switch_people)
 
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
@@ -42,6 +43,10 @@ class PeopleFragment : Fragment() {
         peopleRecyclerView.layoutManager = linearLayoutManager
 
         dataFirestore()
+
+        peopleSwitch.setOnClickListener {
+            makeDialog()
+        }
 
         return root
     }
@@ -53,19 +58,38 @@ class PeopleFragment : Fragment() {
         db.collection("users")
             .get()
             .addOnSuccessListener { result ->
-                    for (document in result) {
-                        val name = document.data["firstName"].toString()
-                        userList.add(name)
-                    }
+                for (document in result) {
+                    val name = document.data["firstName"].toString()
+                    userList.add(name)
+                }
                 adapter = PeopleAdapter(userList)
                 peopleRecyclerView.adapter = adapter
-                    Toast.makeText(context, "toast", Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(context, "toast", Toast.LENGTH_SHORT).show()
+            }
 
             .addOnFailureListener { exception ->
                 Log.d("TAG", "get failed with ", exception)
                 Toast.makeText(context, "Firestore not working", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun makeDialog() {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle(R.string.unlock_title_alert)
+        builder.setMessage(R.string.lock_support_lock)
+        builder.setNeutralButton(R.string.cancel)
+        {
+            dialogInterface, which ->
+            Toast.makeText(context, "Action cancelled", Toast.LENGTH_SHORT).show()
+        }
+        builder.setPositiveButton(R.string.accept)
+        {
+            dialogInterface, which ->
+
+        }
+
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.show()
     }
 }
 
