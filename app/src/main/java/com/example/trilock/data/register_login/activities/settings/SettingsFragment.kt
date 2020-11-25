@@ -41,7 +41,7 @@ class SettingsFragment : Fragment() {
         val switch: Switch = root.findViewById(R.id.switch_biometrics)
         mTextView = root.findViewById(R.id.text_view_name_setting)
 
-        readData()
+        /*readData()
         var userName: String
         val docRef = db.collection("users").document("DLahkmTUQAt6cVBGcAOz")
         docRef.get()
@@ -56,7 +56,7 @@ class SettingsFragment : Fragment() {
             }
             .addOnFailureListener { exception ->
                 Log.d("TAG", "get failed with ", exception)
-            }
+            }*/
 
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME,Context.MODE_PRIVATE)!!
         isSwitched = sharedPreferences.getBoolean("SWITCH", false)

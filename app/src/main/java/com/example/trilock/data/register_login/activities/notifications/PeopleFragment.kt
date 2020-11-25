@@ -2,6 +2,7 @@ package com.example.trilock.data.register_login.activities.notifications
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -24,7 +25,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import org.w3c.dom.Document
 import kotlin.collections.mutableListOf as mutableListOf
 
 class PeopleFragment : Fragment() {
@@ -44,7 +44,7 @@ class PeopleFragment : Fragment() {
         peopleViewModel =
             ViewModelProvider(this).get(PeopleViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_people, container, false)
-        val rcl = inflater.inflate(R.layout.list_people, container,false)
+        val rcl = inflater.inflate(R.layout.list_people, container, false)
         val peopleSwitch: Switch = rcl.findViewById(R.id.switch_people)
 
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
@@ -53,46 +53,52 @@ class PeopleFragment : Fragment() {
 
         dataFirestore()
 
+        peopleSwitch.setOnClickListener {
+            makeDialog()
+        }
+
         return root
     }
 
     private fun dataFirestore() {
 
-        //Trying to collect first names from Database.
+        //Trying to collect firstnames from Database.
         val userList: ArrayList<String> = mutableListOf<String>() as ArrayList<String>
         db.collection("users")
             .get()
             .addOnSuccessListener { result ->
-                    for (document in result) {
-
-//                        val map = document.get("firstName") as Map <String, String>
-//
-//                        val password = "Poop1234"
-//
-//                        val encryptedString: String = map.get("encrypted") as String
-//                        val ivString: String = map.get("iv") as String
-//                        val saltString: String = map.get("salt") as String
-//
-//                        val encrypted = Base64.decode(encryptedString, Base64.NO_WRAP)
-//                        val iv = Base64.decode(ivString, Base64.NO_WRAP)
-//                        val salt = Base64.decode(saltString, Base64.NO_WRAP)
-//
-//                        val decrypted = Encryption().decrypt(
-//                            hashMapOf("iv" to iv, "salt" to salt, "encrypted" to encrypted), password)
-//                        val name: String = Base64.encodeToString(decrypted, Base64.NO_WRAP)
-//
-                        val name = document.data["firstName"].toString()
-                        userList.add(name)
-                    }
+                for (document in result) {
+                    val name = document.data["firstName"].toString()
+                    userList.add(name)
+                }
                 adapter = PeopleAdapter(userList)
                 peopleRecyclerView.adapter = adapter
-                    Toast.makeText(context, "toast", Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(context, "toast", Toast.LENGTH_SHORT).show()
+            }
 
             .addOnFailureListener { exception ->
                 Log.d("TAG", "get failed with ", exception)
                 Toast.makeText(context, "Firestore not working", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun makeDialog() {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle(R.string.unlock_title_alert)
+        builder.setMessage(R.string.lock_support_lock)
+        builder.setNeutralButton(R.string.cancel)
+        {
+            dialogInterface, which ->
+            Toast.makeText(context, "Action cancelled", Toast.LENGTH_SHORT).show()
+        }
+        builder.setPositiveButton(R.string.accept)
+        {
+            dialogInterface, which ->
+
+        }
+
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.show()
     }
 }
 
