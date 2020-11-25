@@ -1,6 +1,6 @@
 package com.example.trilock.data.register_login.classes
 
-class People{
+class User{
 
     var firstName: String? = null
     var lastName: String? = null
