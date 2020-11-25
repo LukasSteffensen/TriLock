@@ -119,19 +119,36 @@ class RegisterActivity : AppCompatActivity() {
 
                 //Encryption of user info here
 
-                val encryptedFirstName = Encryption().encrypt(firstName.toByteArray(Charsets.UTF_8), password.toCharArray())
-                val encryptedLastName = Encryption().encrypt(lastName.toByteArray(Charsets.UTF_8), password.toCharArray())
-                val encryptedPhoneNumber = Encryption().encrypt(phoneNumber.toByteArray(Charsets.UTF_8), password.toCharArray())
-                val encryptedEmail = Encryption().encrypt(email.toByteArray(Charsets.UTF_8), password.toCharArray())
+                val encryptedFirstName = Encryption().encrypt(firstName.toByteArray(Charsets.UTF_8), password)
+                val encryptedLastName = Encryption().encrypt(lastName.toByteArray(Charsets.UTF_8), password)
+                val encryptedPhoneNumber = Encryption().encrypt(phoneNumber.toByteArray(Charsets.UTF_8), password)
+                val encryptedEmail = Encryption().encrypt(email.toByteArray(Charsets.UTF_8), password)
+
+                val decryptedFirstName = Encryption().decrypt(encryptedFirstName, password)
+                val decryptedFirstNameString = Base64.encodeToString(decryptedFirstName, Base64.NO_WRAP)
+
+                Log.i("Register first decrypt:", "" + decryptedFirstNameString)
 
                 val encryptedFirstNameList = HashMap<String, String>()
                 val encryptedLastNameList = HashMap<String, String>()
                 val encryptedPhoneNumberList = HashMap<String, String>()
                 val encryptedEmailList = HashMap<String, String>()
 
-                encryptedFirstNameList["salt"] = Base64.encodeToString(encryptedFirstName["iv"],Base64.NO_WRAP)
-                encryptedFirstNameList["iv"] = Base64.encodeToString(encryptedFirstName["salt"],Base64.NO_WRAP)
+                encryptedFirstNameList["salt"] = Base64.encodeToString(encryptedFirstName["salt"],Base64.NO_WRAP)
+                encryptedFirstNameList["iv"] = Base64.encodeToString(encryptedFirstName["iv"],Base64.NO_WRAP)
                 encryptedFirstNameList["encrypted"] = Base64.encodeToString(encryptedFirstName["encrypted"],Base64.NO_WRAP)
+
+                val encrypted = Base64.decode(encryptedFirstNameList["encrypted"], Base64.NO_WRAP)
+                val iv = Base64.decode(encryptedFirstNameList["iv"], Base64.NO_WRAP)
+                val salt = Base64.decode(encryptedFirstNameList["salt"], Base64.NO_WRAP)
+
+                val decrypted = Encryption().decrypt(
+                    hashMapOf("iv" to iv, "salt" to salt, "encrypted" to encrypted), password)
+
+                val name: String = Base64.encodeToString(decrypted, Base64.NO_WRAP)
+
+                Log.i("Register decryption: ", ""+name)
+
 
                 encryptedLastNameList["salt"] = Base64.encodeToString(encryptedLastName["salt"],Base64.NO_WRAP)
                 encryptedLastNameList["iv"] = Base64.encodeToString(encryptedLastName["iv"],Base64.NO_WRAP)

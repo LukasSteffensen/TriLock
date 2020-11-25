@@ -3,6 +3,7 @@ package com.example.trilock.data.register_login.activities.notifications
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trilock.R
 import com.example.trilock.data.model.ui.people.PeopleViewModel
+import com.example.trilock.data.register_login.classes.Encryption
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.auth.User
@@ -56,13 +58,30 @@ class PeopleFragment : Fragment() {
 
     private fun dataFirestore() {
 
-        //Trying to collect firstnames from Database.
+        //Trying to collect first names from Database.
         val userList: ArrayList<String> = mutableListOf<String>() as ArrayList<String>
         db.collection("users")
             .get()
             .addOnSuccessListener { result ->
                     for (document in result) {
-                        val name = document.data["firstName"].toString()
+
+                        val map = document.get("firstName") as Map <String, String>
+
+                        val password = "Poop1234"
+
+                        val encryptedString: String = map.get("encrypted") as String
+                        val ivString: String = map.get("iv") as String
+                        val saltString: String = map.get("salt") as String
+
+                        val encrypted = Base64.decode(encryptedString, Base64.NO_WRAP)
+                        val iv = Base64.decode(ivString, Base64.NO_WRAP)
+                        val salt = Base64.decode(saltString, Base64.NO_WRAP)
+
+                        val decrypted = Encryption().decrypt(
+                            hashMapOf("iv" to iv, "salt" to salt, "encrypted" to encrypted), password)
+                        val name: String = Base64.encodeToString(decrypted, Base64.NO_WRAP)
+
+//                        val name = document.data["firstName"].toString()
                         userList.add(name)
                     }
                 adapter = PeopleAdapter(userList, 1)

@@ -19,7 +19,7 @@ import javax.crypto.spec.SecretKeySpec
 internal class Encryption {
 
     fun encrypt(dataToEncrypt: ByteArray,
-                password: CharArray): HashMap<String, ByteArray> {
+                password: String): HashMap<String, ByteArray> {
         val map = HashMap<String, ByteArray>()
 
         try {
@@ -31,6 +31,8 @@ internal class Encryption {
 
             // 2
             //PBKDF2 - derive the key from the password, don't use passwords directly
+            val password = CharArray(password.length)
+
             val pbKeySpec = PBEKeySpec(password, salt, 1324, 256)
             val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
             val keyBytes = secretKeyFactory.generateSecret(pbKeySpec).encoded
@@ -61,7 +63,7 @@ internal class Encryption {
 
     }
 
-    fun decrypt(map: HashMap<String, ByteArray>, password: CharArray): ByteArray? {
+    fun decrypt(map: HashMap<String, ByteArray>, password: String): ByteArray? {
         var decrypted: ByteArray? = null
         try {
             // 1
@@ -71,6 +73,9 @@ internal class Encryption {
 
             // 2
             //regenerate key from password
+
+            val password = CharArray(password.length)
+
             val pbKeySpec = PBEKeySpec(password, salt, 1324, 256)
             val secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
             val keyBytes = secretKeyFactory.generateSecret(pbKeySpec).encoded
