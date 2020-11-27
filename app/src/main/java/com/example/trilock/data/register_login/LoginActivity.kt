@@ -30,7 +30,7 @@ import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity() {
 
-    private val TAG = "LoginActivity"
+    private val TAG = "LoginActivity: "
 
     lateinit var sharedPreferences: SharedPreferences
     var isSwitched = false
@@ -87,7 +87,7 @@ class LoginActivity : AppCompatActivity() {
 
         sharedPreferences = getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
         isSwitched = sharedPreferences.getBoolean("SWITCH", false)
-        Log.i("LoginActivity: ", isSwitched.toString())
+        Log.i(TAG, isSwitched.toString())
         if (isSwitched && auth.currentUser != null) {
 
             imageViewFingerprint.isGone = false
@@ -102,7 +102,7 @@ class LoginActivity : AppCompatActivity() {
 
             biometricPrompt.authenticate(getCancellationSignal(), mainExecutor, authenticationCallback)
         } else {
-            Toast.makeText(this, "Biometric authentication is turned off", LENGTH_SHORT).show()
+            toast("Biometric authentication is turned off")
             // ALTERNATIVE LOG IN METHOD HERE
         }
 
@@ -112,41 +112,26 @@ class LoginActivity : AppCompatActivity() {
             email = editTextEmail.text.toString().trim()
             password = editTextPassword.text.toString().trim()
             //Check if credentials match and user has verified their email,
-            //I put a lot of placeholder code as comments here until authentication is ready
-//            email =
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        // CHECK EMAIL VerifICATION
-                        // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithEmail:success")
                         val user = auth.currentUser
+                        if (user != null) {
+                            if (user.isEmailVerified) {
+                                Log.i(TAG, "email is verified")
+                                val intent = Intent(this, MainActivity::class.java)
+                                startActivity(intent)
+                            } else {
+                                toast("Please verify your email")
+                            }
+                        }
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "signInWithEmail:failure", task.exception)
-                        Toast.makeText(baseContext, "Authentication failed.",
-                            Toast.LENGTH_SHORT).show()
-                        // ...
+                        toast("Authentication failed")
                     }
-
-                    // ...
                 }
-            //if (!authenticationSuccess) {
-//            toast("authentication unsuccessful")
-//        } else if (!emailVerified){
-//                        toast("Please verify your email")
-//        } else {
-
-            //Maybe check if this is another user, if not then don't do it
-            //if (!sameUser) {
-            val editor: SharedPreferences.Editor = sharedPreferences.edit()
-            editor.putBoolean("SWITCH", false)
-            editor.apply()
-//          }
-
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-//          }
         }
 
         imageViewFingerprint.setOnClickListener(){
