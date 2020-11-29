@@ -54,8 +54,6 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        currentUser = auth.currentUser!!
-
         val textViewSignIn = findViewById<TextView>(R.id.textViewLogin)
 
         textViewSignIn.setOnClickListener {
@@ -175,8 +173,6 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.makeText(baseContext, "Authentication failed.",
                         Toast.LENGTH_SHORT).show()
                 }
-
-                // ...
             }
     }
 

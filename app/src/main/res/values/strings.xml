@@ -47,6 +47,11 @@
     <!-- Strings related to activity history -->
     <string name="history_lock"> has locked the TriLock</string>
     <string name="history_unlock"> has unlocked the TriLock</string>
+    <string name="log_out">Log out</string>
+    <string name="select_lock">Select Lock</string>
+    <string name="enter_code_on_the_back_of_your_lock">Enter code on the back of your lock</string>
+    <string name="add_lock">Add Lock</string>
+    <string name="title_of_your_trilock">Title of your TriLock</string>
 
 
 </resources>

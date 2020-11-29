@@ -1,11 +1,10 @@
 package com.example.trilock.data.model.ui.lock
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -15,6 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.trilock.R
+import com.example.trilock.data.register_login.MainActivity
+import com.example.trilock.data.register_login.activities.AddLockActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.Timestamp.now
 import com.google.firebase.firestore.ktx.firestore
@@ -59,9 +60,34 @@ class LockFragment : Fragment() {
         return root
     }
 
+    //enable options menu in this fragment
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
+        super.onCreate(savedInstanceState)
+    }
+    //inflate the menu
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater!!.inflate(R.menu.options_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+    //handle item clicks of menu
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        //get item id to handle item clicks
+        val id = item!!.itemId
+        //handle item clicks
+        if (id == R.id.action_add){
+            val intent = Intent(context, AddLockActivity::class.java)
+            startActivity(intent)
+        }
+        if (id == R.id.action_select){
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun createEvent() {
         val todayAsTimestamp = now().toDate()
-        val newEvent = hashMapOf(
+        val event = hashMapOf(
             "firstName" to "Bob",
             "locked" to isLocked.toString(),
             "timeStamp" to todayAsTimestamp.toString()
@@ -70,7 +96,7 @@ class LockFragment : Fragment() {
         db.collection("locks")
             .document("HUfT5rj0QTjE7FgyGhfu")
             .collection("events")
-            .add(newEvent)
+            .add(event)
             .addOnSuccessListener { document ->
                 Toast.makeText(context, "New event created", Toast.LENGTH_SHORT).show()
         }
@@ -79,7 +105,7 @@ class LockFragment : Fragment() {
     private fun currentLockStatus() {
         val database = db.collection("locks").document("HUfT5rj0QTjE7FgyGhfu")
         database.get().addOnSuccessListener {document ->
-            if (document.data!!["locked"].toString() == "true") {
+            if (document.data!!["locked"] as Boolean) {
                 isLocked = true
                 Log.i(TAG," Lock is locked")
                 imageViewLock.setImageResource(lockImages[0])

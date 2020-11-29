@@ -1,5 +1,6 @@
 package com.example.trilock.data.model
 
+import android.app.AlertDialog
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.DialogInterface
@@ -41,6 +42,7 @@ class LoginActivity : AppCompatActivity() {
 
     lateinit var editTextEmail: EditText
     lateinit var editTextPassword: EditText
+
 
     var auth: FirebaseAuth = Firebase.auth
 
@@ -109,8 +111,11 @@ class LoginActivity : AppCompatActivity() {
         val buttonLogIn = findViewById<Button>(R.id.button_login)
         buttonLogIn?.setOnClickListener()
         {
-            email = editTextEmail.text.toString().trim()
-            password = editTextPassword.text.toString().trim()
+            if (editTextEmail.text.isEmpty() || editTextPassword.text.isEmpty()) {
+                toast("Please insert your login credentials")
+            } else {
+                email = editTextEmail.text.toString().trim()
+                password = editTextPassword.text.toString().trim()
             //Check if credentials match and user has verified their email,
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
@@ -132,6 +137,8 @@ class LoginActivity : AppCompatActivity() {
                         toast("Authentication failed")
                     }
                 }
+            }
+
         }
 
         imageViewFingerprint.setOnClickListener(){
