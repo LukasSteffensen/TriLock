@@ -139,10 +139,12 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun addUserToDatabase() {
+        uid = auth.currentUser!!.uid
         db.collection("users")
         .document(uid).set(user)
         .addOnSuccessListener {
             Log.d("RegisterActivity: ", "DocumentSnapshot added with ID: $uid")
+            auth.signOut()
         }
         .addOnFailureListener { e ->
             Log.w("RegisterActivity: ", "Error adding document", e)
@@ -160,11 +162,9 @@ class RegisterActivity : AppCompatActivity() {
                         ?.addOnCompleteListener(this) {
                             if (task.isSuccessful) {
                                 toast("A verification email has been sent")
-                                uid = auth.currentUser?.uid.toString()
                                 addUserToDatabase()
                             }
                         }
-                    auth.signOut()
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
                 } else {
