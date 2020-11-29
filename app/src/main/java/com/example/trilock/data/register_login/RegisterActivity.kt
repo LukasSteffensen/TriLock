@@ -94,16 +94,18 @@ class RegisterActivity : AppCompatActivity() {
             } else if (!password.isPasswordValid()) {
                 inputAgain(editTextPassword, "Password must be at least 8 characters and contain at least a number, uppercase letter and lowercase letter")
             } else {
-                createUserAndSendEmail()
-
-                Log.i("RegisterActivity: ", "we hit the else!")
-
                 user = hashMapOf<String, String>(
                     "firstName" to firstName,
                     "lastName" to lastName,
                     "phone" to phoneNumber,
                     "email" to email
                 )
+
+                createUserAndSendEmail()
+
+                Log.i("RegisterActivity: ", "we hit the else!")
+
+
             }
         }
     }

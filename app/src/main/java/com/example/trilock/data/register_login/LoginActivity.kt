@@ -91,7 +91,6 @@ class LoginActivity : AppCompatActivity() {
         isSwitched = sharedPreferences.getBoolean("SWITCH", false)
         Log.i(TAG, isSwitched.toString())
         if (isSwitched && auth.currentUser != null) {
-
             imageViewFingerprint.isGone = false
             checkBiometricSupport()
             val biometricPrompt = BiometricPrompt.Builder(this)

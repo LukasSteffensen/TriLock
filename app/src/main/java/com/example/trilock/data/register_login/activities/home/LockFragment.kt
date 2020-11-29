@@ -1,5 +1,6 @@
 package com.example.trilock.data.register_login.activities.home
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -29,12 +30,16 @@ class LockFragment : Fragment() {
 
     var auth: FirebaseAuth = Firebase.auth
 
+    private val PREFS_FILENAME = "SHARED_PREF"
+    private lateinit var sharedPreferences: SharedPreferences
+
     lateinit var currentUser: FirebaseUser
 
     private val TAG = "LockFragment"
     private var lockImages = arrayOf(R.drawable.baseline_lock_24, R.drawable.baseline_lock_open_24)
     private var isLocked: Boolean = false
     private val db = Firebase.firestore
+    private lateinit var currentLock: String
     private lateinit var imageViewLock: ImageView
     private lateinit var textViewLockStatus: TextView
 
@@ -53,7 +58,7 @@ class LockFragment : Fragment() {
 
         currentLockStatus()
         database = Firebase.database.reference
-        currentUser = Firebase.auth.currentUser!!
+        currentUser = auth.currentUser!!
 
         // set on-click listener for ImageView
         imageViewLock.setOnClickListener {
@@ -87,6 +92,7 @@ class LockFragment : Fragment() {
             startActivity(intent)
         }
         if (id == R.id.action_next){
+            saveLockSelection(currentLock)
         }
 
         return super.onOptionsItemSelected(item)
@@ -171,5 +177,12 @@ class LockFragment : Fragment() {
                 .addOnSuccessListener { Log.d(TAG, "Lock is now locked") }
                 .addOnFailureListener { e -> Log.w(TAG, "Error in locks document", e) }
         }
+    }
+
+    private fun saveLockSelection(currentLock: String) {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putString("LOCK", "You have no lock")
+        editor.apply()
+        Log.i(TAG, currentLock)
     }
 }
