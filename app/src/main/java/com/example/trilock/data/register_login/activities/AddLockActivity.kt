@@ -1,6 +1,7 @@
 package com.example.trilock.data.register_login.activities
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +19,9 @@ import java.security.MessageDigest
 class AddLockActivity : AppCompatActivity() {
 
     private val TAG = "AddLockActivity: "
+
+    lateinit var sharedPreferences: SharedPreferences
+    val PREFS_FILENAME = "SHARED_PREF"
 
     private lateinit var editTextLock: EditText
     private lateinit var editTextTitle: EditText
@@ -52,7 +56,7 @@ class AddLockActivity : AppCompatActivity() {
                 }
                 else -> {
                     lockCode = editTextLock.text.toString()
-                    Log.i("Addlockblabla: ", lockCode)
+                    Log.i(TAG, lockCode)
                     lockHash = hashString(lockCode, "SHA-256")
                     Log.i(TAG, lockHash)
                     val docRef = db.collection("unregisteredLocks").document(lockHash)
@@ -118,6 +122,7 @@ class AddLockActivity : AppCompatActivity() {
                         toast("Lock successfully added!")
                         deleteUnregisteredLock()
                         Log.d(TAG, "DocumentSnapshot successfully written!")
+                        saveLockSelection(title)
                     }
                     .addOnFailureListener {
                         e -> Log.w(TAG, "Error writing document", e)
@@ -130,5 +135,12 @@ class AddLockActivity : AppCompatActivity() {
             .delete()
             .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully deleted!") }
             .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
+    }
+
+    private fun saveLockSelection(currentLock: String) {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putString("LOCK", currentLock)
+        editor.apply()
+        Log.i(TAG, currentLock)
     }
 }

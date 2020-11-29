@@ -52,6 +52,8 @@
     <string name="enter_code_on_the_back_of_your_lock">Enter code on the back of your lock</string>
     <string name="add_lock">Add Lock</string>
     <string name="title_of_your_trilock">Title of your TriLock</string>
+    <string name="next_lock">Next Lock</string>
+    <string name="lock_title">Lock Title</string>
 
 
 </resources>

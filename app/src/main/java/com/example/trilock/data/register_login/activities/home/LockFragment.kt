@@ -86,7 +86,7 @@ class LockFragment : Fragment() {
             val intent = Intent(context, AddLockActivity::class.java)
             startActivity(intent)
         }
-        if (id == R.id.action_select){
+        if (id == R.id.action_next){
         }
 
         return super.onOptionsItemSelected(item)

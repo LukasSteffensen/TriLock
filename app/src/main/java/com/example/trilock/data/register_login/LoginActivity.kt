@@ -34,8 +34,8 @@ class LoginActivity : AppCompatActivity() {
     private val TAG = "LoginActivity: "
 
     lateinit var sharedPreferences: SharedPreferences
-    var isSwitched = false
     val PREFS_FILENAME = "SHARED_PREF"
+    var isSwitched = false
 
     lateinit var email: String
     lateinit var password: String
