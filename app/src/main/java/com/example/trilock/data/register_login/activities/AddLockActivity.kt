@@ -46,6 +46,8 @@ class AddLockActivity : AppCompatActivity() {
         editTextTitle = findViewById(R.id.edit_text_title)
         buttonAddLock = findViewById(R.id.button_add_lock)
 
+        sharedPreferences = getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
+
         buttonAddLock.setOnClickListener {
             when {
                 editTextTitle.text.isEmpty() -> {
@@ -72,10 +74,9 @@ class AddLockActivity : AppCompatActivity() {
 
                                 lock = hashMapOf(
                                     "title" to title,
-                                    "isLocked" to false
-                                )
-                                user = hashMapOf(
-                                    "isOwner" to isOwner
+                                    "isLocked" to false,
+                                    "owners" to arrayListOf(userUid),
+                                    "guest" to arrayListOf(String)
                                 )
                                 addLock()
                             } else {
@@ -113,21 +114,14 @@ class AddLockActivity : AppCompatActivity() {
         db.collection("locks")
             .add(lock)
             .addOnSuccessListener { document ->
-                db.collection("locks")
-                    .document(document.id)
-                    .collection("users")
-                    .document(userUid)
-                    .set(user)
-                    .addOnSuccessListener {
                         toast("Lock successfully added!")
                         deleteUnregisteredLock()
                         Log.d(TAG, "DocumentSnapshot successfully written!")
-                        saveLockSelection(title)
+                        saveLockSelection(document.id)
                     }
                     .addOnFailureListener {
                         e -> Log.w(TAG, "Error writing document", e)
                     }
-            }
     }
 
     private fun deleteUnregisteredLock() {

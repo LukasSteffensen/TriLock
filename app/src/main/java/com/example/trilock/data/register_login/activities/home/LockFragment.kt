@@ -1,4 +1,5 @@
 package com.example.trilock.data.register_login.activities.home
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -58,6 +59,9 @@ class LockFragment : Fragment() {
         imageViewLock = root.findViewById(R.id.image_view_lock)
         imageViewLock.isInvisible = true
 
+        sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
+        currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
+        textViewLockTitle.text = currentLock
         currentLockStatus()
         database = Firebase.database.reference
         currentUser = auth.currentUser!!
@@ -94,7 +98,8 @@ class LockFragment : Fragment() {
             startActivity(intent)
         }
         if (id == R.id.action_next){
-            saveLockSelection(currentLock)
+//            db.collection("locks").get().
+//            saveLockSelection(currentLock)
         }
 
         return super.onOptionsItemSelected(item)
@@ -128,7 +133,7 @@ class LockFragment : Fragment() {
 
     private fun makeEvent(name : String) {
         val todayAsTimestamp = now().toDate()
-        val newEvent = hashMapOf(
+        val event = hashMapOf(
             "firstName" to "Bob",
             "locked" to isLocked.toString(),
             "timeStamp" to todayAsTimestamp.toString()
@@ -137,7 +142,7 @@ class LockFragment : Fragment() {
         db.collection("locks")
             .document("HUfT5rj0QTjE7FgyGhfu")
             .collection("events")
-            .add(newEvent)
+            .add(event)
             .addOnSuccessListener { document ->
                 Toast.makeText(context, "New event created", Toast.LENGTH_SHORT).show()
         }
@@ -183,7 +188,7 @@ class LockFragment : Fragment() {
 
     private fun saveLockSelection(currentLock: String) {
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
-        editor.putString("LOCK", "You have no lock")
+        editor.putString("LOCK", currentLock)
         editor.apply()
         Log.i(TAG, currentLock)
     }
