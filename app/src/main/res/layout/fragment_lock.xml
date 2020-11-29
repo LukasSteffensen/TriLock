@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".data.model.ui.lock.LockFragment">
+    tools:context=".data.register_login.activities.home.LockFragment">
 
     <TextView
         android:id="@+id/text_lock_status"

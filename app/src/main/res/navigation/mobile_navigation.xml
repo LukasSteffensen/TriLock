@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_lock"
-        android:name="com.example.trilock.data.model.ui.lock.LockFragment"
+        android:name="com.example.trilock.data.register_login.activities.home.LockFragment"
         android:label="Lock"
         tools:layout="@layout/fragment_lock" />
 

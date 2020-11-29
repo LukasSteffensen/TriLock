@@ -1,6 +1,4 @@
-package com.example.trilock.data.model.ui.lock
-
-import android.app.AlertDialog
+package com.example.trilock.data.register_login.activities.home
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,24 +6,27 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.graphics.toColor
 import androidx.core.view.isInvisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.trilock.R
-import com.example.trilock.data.register_login.MainActivity
+import com.example.trilock.data.model.ui.lock.LockViewModel
 import com.example.trilock.data.register_login.activities.AddLockActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.Timestamp.now
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.NonCancellable.cancel
-import java.security.Timestamp
 
 class LockFragment : Fragment() {
 
     private lateinit var lockViewModel: LockViewModel
+
+    var auth: FirebaseAuth = Firebase.auth
+
+    lateinit var currentUser: FirebaseUser
 
     private val TAG = "LockFragment"
     private var lockImages = arrayOf(R.drawable.baseline_lock_24, R.drawable.baseline_lock_open_24)
@@ -48,6 +49,7 @@ class LockFragment : Fragment() {
         imageViewLock.isInvisible = true
 
         currentLockStatus()
+        currentUser = Firebase.auth.currentUser!!
 
         // set on-click listener for ImageView
         imageViewLock.setOnClickListener {
@@ -86,8 +88,22 @@ class LockFragment : Fragment() {
     }
 
     private fun createEvent() {
+        if(currentUser != null) {
+            db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
+                Log.i(TAG, "Got user from database")
+                if(document!=null){
+                    makeEvent(document["firstName"].toString())
+                }
+            }
+                .addOnFailureListener { exception ->
+                    Log.d("TAG", "get failed with ", exception)
+                }
+        }
+    }
+
+    private fun makeEvent(name : String) {
         val todayAsTimestamp = now().toDate()
-        val event = hashMapOf(
+        val newEvent = hashMapOf(
             "firstName" to "Bob",
             "locked" to isLocked.toString(),
             "timeStamp" to todayAsTimestamp.toString()
@@ -96,7 +112,7 @@ class LockFragment : Fragment() {
         db.collection("locks")
             .document("HUfT5rj0QTjE7FgyGhfu")
             .collection("events")
-            .add(event)
+            .add(newEvent)
             .addOnSuccessListener { document ->
                 Toast.makeText(context, "New event created", Toast.LENGTH_SHORT).show()
         }
@@ -105,7 +121,7 @@ class LockFragment : Fragment() {
     private fun currentLockStatus() {
         val database = db.collection("locks").document("HUfT5rj0QTjE7FgyGhfu")
         database.get().addOnSuccessListener {document ->
-            if (document.data!!["locked"] as Boolean) {
+            if (document.data!!["locked"].toString() == "true") {
                 isLocked = true
                 Log.i(TAG," Lock is locked")
                 imageViewLock.setImageResource(lockImages[0])
