@@ -17,12 +17,15 @@ import com.google.firebase.Timestamp.now
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class LockFragment : Fragment() {
 
     private lateinit var lockViewModel: LockViewModel
+    private lateinit var database: DatabaseReference
 
     var auth: FirebaseAuth = Firebase.auth
 
@@ -49,6 +52,7 @@ class LockFragment : Fragment() {
         imageViewLock.isInvisible = true
 
         currentLockStatus()
+        database = Firebase.database.reference
         currentUser = Firebase.auth.currentUser!!
 
         // set on-click listener for ImageView
@@ -57,6 +61,7 @@ class LockFragment : Fragment() {
             lockStatusChange()
             createEvent()
             currentLockStatus()
+            actuallyUnlockOrLockTheLock()
         }
 
         return root
@@ -85,6 +90,18 @@ class LockFragment : Fragment() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun actuallyUnlockOrLockTheLock(){
+        val database = Firebase.database
+        val myRef = database.getReference("locks/HUfT5rj0QTjE7FgyGhfu/isLocked")
+
+        if(isLocked){
+            myRef.setValue(1)
+        } else {
+            myRef.setValue(0)
+        }
+
     }
 
     private fun createEvent() {
