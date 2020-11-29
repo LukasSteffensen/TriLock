@@ -44,6 +44,7 @@ class LockFragment : Fragment() {
     private lateinit var imageViewLock: ImageView
     private lateinit var textViewLockStatus: TextView
     private lateinit var textViewLockTitle: TextView
+    private var arrayListOfLocks: ArrayList<String> = ArrayList()
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -67,6 +68,8 @@ class LockFragment : Fragment() {
                 textViewLockTitle.text = document.data!!["title"].toString()
             }
         }
+
+        getLocks()
 
         currentLockStatus()
         database = Firebase.database.reference
@@ -104,8 +107,6 @@ class LockFragment : Fragment() {
             startActivity(intent)
         }
         if (id == R.id.action_next){
-//            db.collection("locks").get().
-//            saveLockSelection(currentLock)
         }
 
         return super.onOptionsItemSelected(item)
@@ -195,5 +196,27 @@ class LockFragment : Fragment() {
         editor.putString("LOCK", currentLock)
         editor.apply()
         Log.i(TAG, currentLock)
+    }
+
+    private fun nextLock() {
+
+//            saveLockSelection(currentLock)
+    }
+
+    private fun getLocks() {
+        db.collection("locks")
+            .whereArrayContains("owners", currentUser.uid)
+            .get().addOnSuccessListener {result ->
+                for (document in result){
+                    arrayListOfLocks.add(document.id)
+                }
+            }
+        db.collection("locks")
+            .whereArrayContains("guests", currentUser.uid)
+            .get().addOnSuccessListener { result ->
+                for (document in result) {
+                    arrayListOfLocks.add(document.id)
+                }
+            }
     }
 }
