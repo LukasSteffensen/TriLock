@@ -61,7 +61,13 @@ class LockFragment : Fragment() {
 
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
         currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
-        textViewLockTitle.text = currentLock
+        db.collection("locks").document(currentLock).get().addOnSuccessListener {document ->
+            if (document != null) {
+                Log.i(TAG, "hello " + document.data)
+                textViewLockTitle.text = document.data!!["title"].toString()
+            }
+        }
+
         currentLockStatus()
         database = Firebase.database.reference
         currentUser = auth.currentUser!!
@@ -118,20 +124,18 @@ class LockFragment : Fragment() {
     }
 
     private fun createEvent() {
-        if(currentUser != null) {
-            db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
-                Log.i(TAG, "Got user from database")
-                if(document!=null){
-                    makeEvent(document["firstName"].toString())
-                }
+        db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
+            Log.i(TAG, "Got user from database")
+            if(document!=null){
+                makeEvent()
             }
-                .addOnFailureListener { exception ->
-                    Log.d("TAG", "get failed with ", exception)
-                }
         }
+            .addOnFailureListener { exception ->
+                Log.d("TAG", "get failed with ", exception)
+            }
     }
 
-    private fun makeEvent(name : String) {
+    private fun makeEvent() {
         val todayAsTimestamp = now().toDate()
         val event = hashMapOf(
             "firstName" to "Bob",
@@ -151,7 +155,7 @@ class LockFragment : Fragment() {
     private fun currentLockStatus() {
         val database = db.collection("locks").document("HUfT5rj0QTjE7FgyGhfu")
         database.get().addOnSuccessListener {document ->
-            if (document.data!!["locked"].toString() == "true") {
+            if (document.data!!["locked"] as Boolean) {
                 isLocked = true
                 Log.i(TAG," Lock is locked")
                 imageViewLock.setImageResource(lockImages[0])

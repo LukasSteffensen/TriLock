@@ -1,6 +1,7 @@
 package com.example.trilock.data.register_login.activities
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.example.trilock.R
+import com.example.trilock.data.register_login.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -69,14 +71,14 @@ class AddLockActivity : AppCompatActivity() {
 //                                add new lock to database along with user
                                 title = editTextTitle.text.toString()
                                 userUid = auth.uid.toString()
-                                Log.i("Addlockblabla: ", title)
-                                Log.i("Addlockblabla: ", userUid)
+                                Log.i(TAG, title)
+                                Log.i(TAG, userUid)
 
                                 lock = hashMapOf(
                                     "title" to title,
                                     "isLocked" to false,
                                     "owners" to arrayListOf(userUid),
-                                    "guest" to arrayListOf(String)
+                                    "guest" to arrayListOf(null)
                                 )
                                 addLock()
                             } else {
@@ -118,6 +120,8 @@ class AddLockActivity : AppCompatActivity() {
                         deleteUnregisteredLock()
                         Log.d(TAG, "DocumentSnapshot successfully written!")
                         saveLockSelection(document.id)
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
                     }
                     .addOnFailureListener {
                         e -> Log.w(TAG, "Error writing document", e)
