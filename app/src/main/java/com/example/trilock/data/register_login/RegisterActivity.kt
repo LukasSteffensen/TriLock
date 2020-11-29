@@ -33,8 +33,6 @@ class RegisterActivity : AppCompatActivity() {
 
     var auth: FirebaseAuth = Firebase.auth
 
-    lateinit var currentUser: FirebaseUser
-
     // Access a Cloud Firestore instance from your Activity
     val db = Firebase.firestore
 

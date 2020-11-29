@@ -42,6 +42,7 @@ class LockFragment : Fragment() {
     private lateinit var currentLock: String
     private lateinit var imageViewLock: ImageView
     private lateinit var textViewLockStatus: TextView
+    private lateinit var textViewLockTitle: TextView
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -53,6 +54,7 @@ class LockFragment : Fragment() {
                 ViewModelProvider(this).get(LockViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_lock, container, false)
         textViewLockStatus = root.findViewById(R.id.text_lock_status)
+        textViewLockTitle= root.findViewById(R.id.text_view_lock_title)
         imageViewLock = root.findViewById(R.id.image_view_lock)
         imageViewLock.isInvisible = true
 
