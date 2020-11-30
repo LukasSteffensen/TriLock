@@ -61,8 +61,12 @@ class LockFragment : Fragment() {
         imageViewLock.isInvisible = true
 
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
-        currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
-        updateLockTitle()
+        currentLock = sharedPreferences.getString("LOCK", null)!!
+        if (currentLock == null) {
+            textViewLockTitle.text = "You have no lock"
+        } else {
+            updateLockTitle()
+        }
         currentUser = auth.currentUser!!
         database = Firebase.database.reference
 
