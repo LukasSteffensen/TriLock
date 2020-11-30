@@ -64,12 +64,13 @@ class LockFragment : Fragment() {
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
         currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
 
-        updateLockTitle()
 
         currentUser = auth.currentUser!!
         database = Firebase.database.reference
 
         getLocks()
+
+        updateLockTitle()
 
         currentLockStatus()
 
@@ -77,9 +78,10 @@ class LockFragment : Fragment() {
         imageViewLock.setOnClickListener {
             Log.i(TAG," imageView clicked")
             lockStatusChange()
-            getUser()
+            addEventWithUser()
             currentLockStatus()
             actuallyUnlockOrLockTheLock()
+            imageViewLock.isClickable = false
         }
 
         return root
@@ -134,33 +136,29 @@ class LockFragment : Fragment() {
 
     }
 
-    private fun getUser() {
+    private fun addEventWithUser() {
         db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
             Log.i(TAG, "Got user from database")
             if(document!=null){
                 userFirstName = document["firstName"] as String
-                addEvent()
+                val todayAsTimestamp = now().toDate()
+                val event = hashMapOf(
+                    "firstName" to userFirstName,
+                    "locked" to isLocked.toString(),
+                    "timeStamp" to todayAsTimestamp.toString()
+                )
+
+                db.collection("locks")
+                    .document("HUfT5rj0QTjE7FgyGhfu")
+                    .collection("events")
+                    .add(event)
+                    .addOnSuccessListener { document ->
+                    }
             }
         }
             .addOnFailureListener { exception ->
                 Log.d("TAG", "get failed with ", exception)
             }
-    }
-
-    private fun addEvent() {
-        val todayAsTimestamp = now().toDate()
-        val event = hashMapOf(
-            "firstName" to userFirstName,
-            "locked" to isLocked.toString(),
-            "timeStamp" to todayAsTimestamp.toString()
-        )
-
-        db.collection("locks")
-            .document("HUfT5rj0QTjE7FgyGhfu")
-            .collection("events")
-            .add(event)
-            .addOnSuccessListener { document ->
-        }
     }
 
     private fun currentLockStatus() {
@@ -177,6 +175,7 @@ class LockFragment : Fragment() {
                 imageViewLock.setImageResource(lockImages[1])
                 lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.unlocked)})
             }
+            imageViewLock.isClickable = true
             imageViewLock.isInvisible = false
         }
 
@@ -189,13 +188,13 @@ class LockFragment : Fragment() {
         if (isLocked) {
             isLocked = false
             val status = hashMapOf("locked" to false)
-            database.set(status)
+            database.update(status as Map<String, Any>)
                 .addOnSuccessListener { Log.d(TAG, "Lock is now unlocked") }
                 .addOnFailureListener { e -> Log.w(TAG, "Error in locks document", e) }
         } else {
             isLocked = true
             val status = hashMapOf("locked" to true)
-            database.set(status)
+            database.update(status as Map<String, Any>)
                 .addOnSuccessListener { Log.d(TAG, "Lock is now locked") }
                 .addOnFailureListener { e -> Log.w(TAG, "Error in locks document", e) }
         }
@@ -229,12 +228,17 @@ class LockFragment : Fragment() {
                 for (document in result){
                     arrayListOfLocks.add(document.id)
                 }
-            }
-        db.collection("locks")
-            .whereArrayContains("guests", currentUser.uid)
-            .get().addOnSuccessListener { result ->
-                for (document in result) {
-                    arrayListOfLocks.add(document.id)
+                db.collection("locks")
+                    .whereArrayContains("guests", currentUser.uid)
+                    .get().addOnSuccessListener { result ->
+                        for (document in result) {
+                            arrayListOfLocks.add(document.id)
+                        }
+                    }
+                if (arrayListOfLocks.size == 1) {
+                    saveLockSelection(arrayListOfLocks[0])
+                    currentLock = arrayListOfLocks[0]
+                    updateLockTitle()
                 }
             }
     }
