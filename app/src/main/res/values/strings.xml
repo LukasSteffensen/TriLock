@@ -54,6 +54,8 @@
     <string name="title_of_your_trilock">Title of your TriLock</string>
     <string name="next_lock">Next Lock</string>
     <string name="lock_title">Lock Title</string>
+    <string name="invite_user">Invite user</string>
+    <string name="email">Email</string>
 
 
 </resources>
