@@ -4,14 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Switch
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -34,7 +33,14 @@ class PeopleFragment : Fragment() {
     val db = Firebase.firestore
     private lateinit var adapter: PeopleAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
+    private lateinit var buttonInvite: Button
+    private lateinit var editTextEmailInvite: EditText
+    private lateinit var currentLock: String
+    private lateinit var inviteEmail: String
 
+
+    private val PREFS_FILENAME = "SHARED_PREF"
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,9 +53,19 @@ class PeopleFragment : Fragment() {
         val rcl = inflater.inflate(R.layout.list_people, container, false)
         val peopleSwitch: Switch = rcl.findViewById(R.id.switch_people)
 
+        buttonInvite = root.findViewById(R.id.button_invite)
+        editTextEmailInvite = root.findViewById(R.id.edit_text_email_invite)
+
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
         linearLayoutManager = LinearLayoutManager(context)
         peopleRecyclerView.layoutManager = linearLayoutManager
+
+        sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
+        currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
+
+        buttonInvite.setOnClickListener {
+            inviteUser()
+        }
 
         dataFirestore()
 
@@ -58,6 +74,36 @@ class PeopleFragment : Fragment() {
         }
 
         return root
+    }
+
+    private fun inviteUser() {
+        if (editTextEmailInvite.text.isEmpty()) {
+            toast("Please put in the email of the user you would like to invite")
+        } else if (!editTextEmailInvite.text.toString().isEmailValid()) {
+            toast("Please enter a valid email address")
+        } else {
+            inviteEmail = editTextEmailInvite.text.toString()
+            db.collection("users")
+                .whereEqualTo("email", inviteEmail)
+                .get().addOnSuccessListener {result ->
+                    for (document in result) {
+                        if (inviteEmail == document["email"]) {
+                            // add invited user to the lock
+
+                        } else {
+                            toast("Unable to invite user, check that you have written their email correctly")
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun toast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun String.isEmailValid(): Boolean {
+        return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
     private fun dataFirestore() {
@@ -84,8 +130,8 @@ class PeopleFragment : Fragment() {
 
     private fun makeDialog() {
         val builder = AlertDialog.Builder(context)
-        builder.setTitle(R.string.unlock_title_alert)
-        builder.setMessage(R.string.lock_support_lock)
+        builder.setTitle("Are you sure?")
+        builder.setMessage("This action will make ")
         builder.setNeutralButton(R.string.cancel)
         {
             dialogInterface, which ->

@@ -34,8 +34,6 @@ class AddLockActivity : AppCompatActivity() {
     private lateinit var lock: HashMap <*,*>
     private lateinit var lockHash: String
     private lateinit var userUid: String
-    private lateinit var user: HashMap<*,*>
-    private val isOwner: Boolean = true
 
     private val db = Firebase.firestore
     var auth: FirebaseAuth = Firebase.auth
