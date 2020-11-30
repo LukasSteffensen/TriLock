@@ -36,11 +36,12 @@ class LockFragment : Fragment() {
 
     lateinit var currentUser: FirebaseUser
 
-    private val TAG = "LockFragment"
+    private val TAG = "LockFragment: "
     private var lockImages = arrayOf(R.drawable.baseline_lock_24, R.drawable.baseline_lock_open_24)
     private var isLocked: Boolean = false
     private val db = Firebase.firestore
     private lateinit var currentLock: String
+    private lateinit var userFirstName: String
     private lateinit var imageViewLock: ImageView
     private lateinit var textViewLockStatus: TextView
     private lateinit var textViewLockTitle: TextView
@@ -61,7 +62,7 @@ class LockFragment : Fragment() {
         imageViewLock.isInvisible = true
 
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
-        currentLock = sharedPreferences.getString("LOCK", null)!!
+        currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
 
         updateLockTitle()
 
@@ -137,6 +138,7 @@ class LockFragment : Fragment() {
         db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
             Log.i(TAG, "Got user from database")
             if(document!=null){
+                userFirstName = document["firstName"] as String
                 addEvent()
             }
         }
@@ -148,7 +150,7 @@ class LockFragment : Fragment() {
     private fun addEvent() {
         val todayAsTimestamp = now().toDate()
         val event = hashMapOf(
-            "firstName" to "Bob",
+            "firstName" to userFirstName,
             "locked" to isLocked.toString(),
             "timeStamp" to todayAsTimestamp.toString()
         )
