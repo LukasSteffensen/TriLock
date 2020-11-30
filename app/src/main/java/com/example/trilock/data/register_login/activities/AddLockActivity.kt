@@ -1,6 +1,7 @@
 package com.example.trilock.data.register_login.activities
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.example.trilock.R
+import com.example.trilock.data.register_login.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -18,7 +20,7 @@ import java.security.MessageDigest
 
 class AddLockActivity : AppCompatActivity() {
 
-    private val TAG = "AddLockActivity: "
+    private val TAG = "AddLockActivity"
 
     lateinit var sharedPreferences: SharedPreferences
     val PREFS_FILENAME = "SHARED_PREF"
@@ -46,6 +48,8 @@ class AddLockActivity : AppCompatActivity() {
         editTextTitle = findViewById(R.id.edit_text_title)
         buttonAddLock = findViewById(R.id.button_add_lock)
 
+        sharedPreferences = getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
+
         buttonAddLock.setOnClickListener {
             when {
                 editTextTitle.text.isEmpty() -> {
@@ -67,15 +71,14 @@ class AddLockActivity : AppCompatActivity() {
 //                                add new lock to database along with user
                                 title = editTextTitle.text.toString()
                                 userUid = auth.uid.toString()
-                                Log.i("Addlockblabla: ", title)
-                                Log.i("Addlockblabla: ", userUid)
+                                Log.i(TAG, title)
+                                Log.i(TAG, userUid)
 
                                 lock = hashMapOf(
                                     "title" to title,
-                                    "isLocked" to false
-                                )
-                                user = hashMapOf(
-                                    "isOwner" to isOwner
+                                    "isLocked" to false,
+                                    "owners" to arrayListOf(userUid),
+                                    "guest" to arrayListOf(null)
                                 )
                                 addLock()
                             } else {
@@ -113,21 +116,16 @@ class AddLockActivity : AppCompatActivity() {
         db.collection("locks")
             .add(lock)
             .addOnSuccessListener { document ->
-                db.collection("locks")
-                    .document(document.id)
-                    .collection("users")
-                    .document(userUid)
-                    .set(user)
-                    .addOnSuccessListener {
                         toast("Lock successfully added!")
                         deleteUnregisteredLock()
                         Log.d(TAG, "DocumentSnapshot successfully written!")
-                        saveLockSelection(title)
+                        saveLockSelection(document.id)
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
                     }
                     .addOnFailureListener {
                         e -> Log.w(TAG, "Error writing document", e)
                     }
-            }
     }
 
     private fun deleteUnregisteredLock() {

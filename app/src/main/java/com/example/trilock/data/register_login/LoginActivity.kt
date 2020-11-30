@@ -31,7 +31,7 @@ import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity() {
 
-    private val TAG = "LoginActivity: "
+    private val TAG = "LoginActivity"
 
     lateinit var sharedPreferences: SharedPreferences
     val PREFS_FILENAME = "SHARED_PREF"

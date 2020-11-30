@@ -1,4 +1,5 @@
 package com.example.trilock.data.register_login.activities.home
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -13,16 +14,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.trilock.R
 import com.example.trilock.data.model.ui.lock.LockViewModel
-import com.example.trilock.data.register_login.MainActivity
 import com.example.trilock.data.register_login.activities.AddLockActivity
 import com.google.firebase.Timestamp.now
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -30,6 +27,7 @@ import com.google.firebase.ktx.Firebase
 class LockFragment : Fragment() {
 
     private lateinit var lockViewModel: LockViewModel
+    private lateinit var database: DatabaseReference
 
     var auth: FirebaseAuth = Firebase.auth
 
@@ -43,8 +41,11 @@ class LockFragment : Fragment() {
     private var isLocked: Boolean = false
     private val db = Firebase.firestore
     private lateinit var currentLock: String
+    private lateinit var userFirstName: String
     private lateinit var imageViewLock: ImageView
     private lateinit var textViewLockStatus: TextView
+    private lateinit var textViewLockTitle: TextView
+    private var arrayListOfLocks: ArrayList<String> = ArrayList()
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -52,24 +53,47 @@ class LockFragment : Fragment() {
             savedInstanceState: Bundle?
 
     ): View? {
-        lockViewModel = ViewModelProvider(this).get(LockViewModel::class.java)
+        lockViewModel =
+                ViewModelProvider(this).get(LockViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_lock, container, false)
         textViewLockStatus = root.findViewById(R.id.text_lock_status)
+        textViewLockTitle= root.findViewById(R.id.text_view_lock_title)
         imageViewLock = root.findViewById(R.id.image_view_lock)
         imageViewLock.isInvisible = true
 
-        currentLockStatus()
+        sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
+        currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
+
+        updateLockTitle()
+
         currentUser = auth.currentUser!!
+        database = Firebase.database.reference
+
+        getLocks()
+
+        currentLockStatus()
 
         // set on-click listener for ImageView
         imageViewLock.setOnClickListener {
             Log.i(TAG," imageView clicked")
             lockStatusChange()
-            createEvent()
+            getUser()
+            currentLockStatus()
             actuallyUnlockOrLockTheLock()
         }
 
         return root
+    }
+
+    private fun updateLockTitle() {
+        db.collection("locks").document(currentLock).get().addOnSuccessListener {document ->
+            if (document != null && document.exists()) {
+                Log.i(TAG, "hello " + document.data)
+                textViewLockTitle.text = document.data!!["title"].toString()
+            } else {
+                textViewLockTitle.text = "You have no lock"
+            }
+        }
     }
 
     //enable options menu in this fragment
@@ -92,7 +116,7 @@ class LockFragment : Fragment() {
             startActivity(intent)
         }
         if (id == R.id.action_next){
-            saveLockSelection(currentLock)
+            nextLock()
         }
 
         return super.onOptionsItemSelected(item)
@@ -102,22 +126,20 @@ class LockFragment : Fragment() {
         val database = Firebase.database
         val myRef = database.getReference("locks/HUfT5rj0QTjE7FgyGhfu/isLocked")
 
-        if(!isLocked){
-            myRef.setValue(1).addOnSuccessListener {
-                Log.i(TAG, "value set to 1")
-            }
+        if(isLocked){
+            myRef.setValue(1)
         } else {
-            myRef.setValue(0).addOnSuccessListener {
-            Log.i(TAG, "value set to 0")
-            }
+            myRef.setValue(0)
         }
+
     }
 
-    private fun createEvent() {
+    private fun getUser() {
         db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
             Log.i(TAG, "Got user from database")
             if(document!=null){
-                makeEvent(document["firstName"].toString())
+                userFirstName = document["firstName"] as String
+                addEvent()
             }
         }
             .addOnFailureListener { exception ->
@@ -125,10 +147,10 @@ class LockFragment : Fragment() {
             }
     }
 
-    private fun makeEvent(name : String) {
+    private fun addEvent() {
         val todayAsTimestamp = now().toDate()
-        val newEvent = hashMapOf(
-            "firstName" to "Bob",
+        val event = hashMapOf(
+            "firstName" to userFirstName,
             "locked" to isLocked.toString(),
             "timeStamp" to todayAsTimestamp.toString()
         )
@@ -136,40 +158,27 @@ class LockFragment : Fragment() {
         db.collection("locks")
             .document("HUfT5rj0QTjE7FgyGhfu")
             .collection("events")
-            .add(newEvent)
+            .add(event)
             .addOnSuccessListener { document ->
-                Toast.makeText(context, "New event created", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun currentLockStatus() {
-        val unlockedListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // Get Post object and use the values to update the UI
-                val readLocked : String = dataSnapshot.value.toString()
-                if(readLocked == "0"){
-                    isLocked = true
-                    Log.i(TAG," Lock is locked")
-                    imageViewLock.setImageResource(lockImages[0])
-                    lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.locked)})
-                } else {
-                    isLocked = false
-                    Log.i(TAG, dataSnapshot.value.toString())
-                    Log.i(TAG," Lock is unlocked")
-                    imageViewLock.setImageResource(lockImages[1])
-                    lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.unlocked)})
-                }
-                imageViewLock.isInvisible = false
-                // ...
+        val database = db.collection("locks").document("HUfT5rj0QTjE7FgyGhfu")
+        database.get().addOnSuccessListener {document ->
+            if (document.data!!["locked"] as Boolean) {
+                isLocked = true
+                Log.i(TAG," Lock is locked")
+                imageViewLock.setImageResource(lockImages[0])
+                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.locked)})
+            } else {
+                isLocked = false
+                Log.i(TAG," Lock is unlocked")
+                imageViewLock.setImageResource(lockImages[1])
+                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.unlocked)})
             }
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Getting Post failed, log a message
-                Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
-                // ...
-            }
+            imageViewLock.isInvisible = false
         }
-        val database = Firebase.database.getReference("locks/HUfT5rj0QTjE7FgyGhfu/status")
-        database.addValueEventListener(unlockedListener)
 
     }
 
@@ -194,8 +203,39 @@ class LockFragment : Fragment() {
 
     private fun saveLockSelection(currentLock: String) {
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
-        editor.putString("LOCK", "You have no lock")
+        editor.putString("LOCK", currentLock)
         editor.apply()
         Log.i(TAG, currentLock)
+    }
+
+    private fun nextLock() {
+        Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
+        Log.i(TAG, arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)])
+
+        if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
+            currentLock = arrayListOfLocks[0]
+        } else {
+            currentLock = arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
+        }
+
+        saveLockSelection(currentLock)
+        updateLockTitle()
+    }
+
+    private fun getLocks() {
+        db.collection("locks")
+            .whereArrayContains("owners", currentUser.uid)
+            .get().addOnSuccessListener {result ->
+                for (document in result){
+                    arrayListOfLocks.add(document.id)
+                }
+            }
+        db.collection("locks")
+            .whereArrayContains("guests", currentUser.uid)
+            .get().addOnSuccessListener { result ->
+                for (document in result) {
+                    arrayListOfLocks.add(document.id)
+                }
+            }
     }
 }
