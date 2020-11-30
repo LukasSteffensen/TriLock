@@ -77,9 +77,10 @@ class LockFragment : Fragment() {
         imageViewLock.setOnClickListener {
             Log.i(TAG," imageView clicked")
             lockStatusChange()
-            getUser()
+            addEventWithUser()
             currentLockStatus()
             actuallyUnlockOrLockTheLock()
+            imageViewLock.isClickable = false
         }
 
         return root
@@ -134,33 +135,29 @@ class LockFragment : Fragment() {
 
     }
 
-    private fun getUser() {
+    private fun addEventWithUser() {
         db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
             Log.i(TAG, "Got user from database")
             if(document!=null){
                 userFirstName = document["firstName"] as String
-                addEvent()
+                val todayAsTimestamp = now().toDate()
+                val event = hashMapOf(
+                    "firstName" to userFirstName,
+                    "locked" to isLocked.toString(),
+                    "timeStamp" to todayAsTimestamp.toString()
+                )
+
+                db.collection("locks")
+                    .document("HUfT5rj0QTjE7FgyGhfu")
+                    .collection("events")
+                    .add(event)
+                    .addOnSuccessListener { document ->
+                    }
             }
         }
             .addOnFailureListener { exception ->
                 Log.d("TAG", "get failed with ", exception)
             }
-    }
-
-    private fun addEvent() {
-        val todayAsTimestamp = now().toDate()
-        val event = hashMapOf(
-            "firstName" to userFirstName,
-            "locked" to isLocked.toString(),
-            "timeStamp" to todayAsTimestamp.toString()
-        )
-
-        db.collection("locks")
-            .document("HUfT5rj0QTjE7FgyGhfu")
-            .collection("events")
-            .add(event)
-            .addOnSuccessListener { document ->
-        }
     }
 
     private fun currentLockStatus() {
@@ -177,6 +174,7 @@ class LockFragment : Fragment() {
                 imageViewLock.setImageResource(lockImages[1])
                 lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.unlocked)})
             }
+            imageViewLock.isClickable = true
             imageViewLock.isInvisible = false
         }
 
