@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.trilock.R
+import com.example.trilock.R.string.locked
+import com.example.trilock.R.string.unlocked
 import com.example.trilock.data.model.ui.lock.LockViewModel
 import com.example.trilock.data.register_login.activities.AddLockActivity
 import com.google.firebase.Timestamp.now
@@ -84,7 +86,6 @@ class LockFragment : Fragment() {
             actuallyUnlockOrLockTheLock(currentLock)
             imageViewLock.isClickable = false
         }
-
         return root
     }
 
@@ -169,10 +170,10 @@ class LockFragment : Fragment() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if(dataSnapshot.value.toString() == "0") {
                     imageViewLock.setImageResource(lockImages[0])
-                    lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.locked) })
+                    textViewLockStatus.text = activity!!.getString(locked)
                 } else {
                     imageViewLock.setImageResource(lockImages[1])
-                    lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.unlocked)})
+                    textViewLockStatus.text = activity!!.getString(unlocked)
                 }
                 imageViewLock.isClickable = true
             }
