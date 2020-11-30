@@ -20,7 +20,7 @@ import java.security.MessageDigest
 
 class AddLockActivity : AppCompatActivity() {
 
-    private val TAG = "AddLockActivity: "
+    private val TAG = "AddLockActivity"
 
     lateinit var sharedPreferences: SharedPreferences
     val PREFS_FILENAME = "SHARED_PREF"

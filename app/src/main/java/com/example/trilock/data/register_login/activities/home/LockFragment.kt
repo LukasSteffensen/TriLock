@@ -36,7 +36,7 @@ class LockFragment : Fragment() {
 
     lateinit var currentUser: FirebaseUser
 
-    private val TAG = "LockFragment: "
+    private val TAG = "LockFragment"
     private var lockImages = arrayOf(R.drawable.baseline_lock_24, R.drawable.baseline_lock_open_24)
     private var isLocked: Boolean = false
     private val db = Firebase.firestore
