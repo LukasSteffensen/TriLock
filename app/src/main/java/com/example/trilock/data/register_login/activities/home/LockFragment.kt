@@ -143,21 +143,6 @@ class LockFragment : Fragment() {
     }
 
     private fun currentLockStatus() {
-        /*val database = db.collection("locks").document("HUfT5rj0QTjE7FgyGhfu")
-        database.get().addOnSuccessListener {document ->
-            if (document.data!!["locked"].toString() == "true") {
-                isLocked = true
-                Log.i(TAG," Lock is locked")
-                imageViewLock.setImageResource(lockImages[0])
-                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.locked)})
-            } else {
-                isLocked = false
-                Log.i(TAG," Lock is unlocked")
-                imageViewLock.setImageResource(lockImages[1])
-                lockViewModel.text.observe(viewLifecycleOwner, Observer { textViewLockStatus.text = getString(R.string.unlocked)})
-            }
-            imageViewLock.isInvisible = false
-       }*/
         val unlockedListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // Get Post object and use the values to update the UI
