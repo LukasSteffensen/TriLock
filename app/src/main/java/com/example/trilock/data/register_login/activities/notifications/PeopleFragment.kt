@@ -21,6 +21,7 @@ import com.example.trilock.data.model.ui.people.PeopleViewModel
 import com.example.trilock.data.register_login.classes.Encryption
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -88,8 +89,9 @@ class PeopleFragment : Fragment() {
                 .get().addOnSuccessListener {result ->
                     for (document in result) {
                         if (inviteEmail == document["email"]) {
-                            // add invited user to the lock
-
+                            db.collection("locks")
+                                .document(currentLock)
+                                .update("guests",FieldValue.arrayUnion(document.id))
                         } else {
                             toast("Unable to invite user, check that you have written their email correctly")
                         }

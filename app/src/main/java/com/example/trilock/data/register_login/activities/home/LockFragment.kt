@@ -216,10 +216,10 @@ class LockFragment : Fragment() {
         Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
         Log.i(TAG, arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)])
 
-        if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
-            currentLock = arrayListOfLocks[0]
+        currentLock = if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
+            arrayListOfLocks[0]
         } else {
-            currentLock = arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
+            arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
         }
 
         saveLockSelection(currentLock)

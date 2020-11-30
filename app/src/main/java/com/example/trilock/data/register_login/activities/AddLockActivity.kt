@@ -75,8 +75,7 @@ class AddLockActivity : AppCompatActivity() {
                                 lock = hashMapOf(
                                     "title" to title,
                                     "isLocked" to false,
-                                    "owners" to arrayListOf(userUid),
-                                    "guest" to arrayListOf(null)
+                                    "owners" to arrayListOf(userUid)
                                 )
                                 addLock()
                             } else {
