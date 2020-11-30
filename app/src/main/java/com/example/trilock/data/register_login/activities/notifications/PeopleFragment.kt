@@ -10,7 +10,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -92,9 +94,9 @@ class PeopleFragment : Fragment() {
 
     private fun inviteUser() {
         if (editTextEmailInvite.text.isEmpty()) {
-            toast("Please put in the email of the user you would like to invite")
+            inputAgain(editTextEmailInvite, "Please put in the email of the user you would like to invite")
         } else if (!editTextEmailInvite.text.toString().isEmailValid()) {
-            toast("Please enter a valid email address")
+            inputAgain(editTextEmailInvite, "Please enter a valid email address")
         } else {
             inviteEmail = editTextEmailInvite.text.toString()
             db.collection("users")
@@ -116,7 +118,7 @@ class PeopleFragment : Fragment() {
     }
 
     private fun toast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     private fun String.isEmailValid(): Boolean {
@@ -151,6 +153,7 @@ class PeopleFragment : Fragment() {
         builder.setNeutralButton(R.string.cancel)
         {
             dialogInterface, which ->
+            closeKeyboardAndRemoveText()
             toast("Action cancelled")
         }
         builder.setPositiveButton(R.string.accept)
@@ -159,10 +162,26 @@ class PeopleFragment : Fragment() {
             db.collection("locks")
                 .document(currentLock)
                 .update("guests",FieldValue.arrayUnion(guestId))
+            toast("$guestName has now been added to your lock")
+            closeKeyboardAndRemoveText()
         }
 
         val alertDialog: AlertDialog = builder.create()
         alertDialog.show()
+    }
+
+    private fun closeKeyboardAndRemoveText() {
+        editTextEmailInvite.setText("")
+        val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(requireView().windowToken, 0)
+    }
+
+    private fun inputAgain(editText: EditText, toast: String) {
+        editText.requestFocus()
+        val imm: InputMethodManager =
+            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
+        toast(toast)
     }
 }
 
