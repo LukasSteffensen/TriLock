@@ -62,29 +62,33 @@ class LockFragment : Fragment() {
 
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
         currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
+        updateLockTitle()
+        currentUser = auth.currentUser!!
+        database = Firebase.database.reference
+
+        getLocks()
+
+        currentLockStatus()
+
+        // set on-click listener for ImageView
+        imageViewLock.setOnClickListener {
+            Log.i(TAG," imageView clicked")
+            lockStatusChange()
+            getUser()
+            currentLockStatus()
+            actuallyUnlockOrLockTheLock()
+        }
+
+        return root
+    }
+
+    private fun updateLockTitle() {
         db.collection("locks").document(currentLock).get().addOnSuccessListener {document ->
             if (document != null) {
                 Log.i(TAG, "hello " + document.data)
                 textViewLockTitle.text = document.data!!["title"].toString()
             }
         }
-
-        getLocks()
-
-        currentLockStatus()
-        database = Firebase.database.reference
-        currentUser = auth.currentUser!!
-
-        // set on-click listener for ImageView
-        imageViewLock.setOnClickListener {
-            Log.i(TAG," imageView clicked")
-            lockStatusChange()
-            createEvent()
-            currentLockStatus()
-            actuallyUnlockOrLockTheLock()
-        }
-
-        return root
     }
 
     //enable options menu in this fragment
@@ -107,6 +111,7 @@ class LockFragment : Fragment() {
             startActivity(intent)
         }
         if (id == R.id.action_next){
+            nextLock()
         }
 
         return super.onOptionsItemSelected(item)
@@ -124,11 +129,11 @@ class LockFragment : Fragment() {
 
     }
 
-    private fun createEvent() {
+    private fun getUser() {
         db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
             Log.i(TAG, "Got user from database")
             if(document!=null){
-                makeEvent()
+                addEvent()
             }
         }
             .addOnFailureListener { exception ->
@@ -136,7 +141,7 @@ class LockFragment : Fragment() {
             }
     }
 
-    private fun makeEvent() {
+    private fun addEvent() {
         val todayAsTimestamp = now().toDate()
         val event = hashMapOf(
             "firstName" to "Bob",
@@ -149,7 +154,6 @@ class LockFragment : Fragment() {
             .collection("events")
             .add(event)
             .addOnSuccessListener { document ->
-                Toast.makeText(context, "New event created", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -199,8 +203,17 @@ class LockFragment : Fragment() {
     }
 
     private fun nextLock() {
+        Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
+        Log.i(TAG, arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)])
 
-//            saveLockSelection(currentLock)
+        if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
+            currentLock = arrayListOfLocks[0]
+        } else {
+            currentLock = arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
+        }
+
+        saveLockSelection(currentLock)
+        updateLockTitle()
     }
 
     private fun getLocks() {
