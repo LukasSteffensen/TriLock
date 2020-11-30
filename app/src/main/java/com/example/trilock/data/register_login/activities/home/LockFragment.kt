@@ -170,10 +170,10 @@ class LockFragment : Fragment() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if(dataSnapshot.value.toString() == "0") {
                     imageViewLock.setImageResource(lockImages[0])
-                    textViewLockStatus.text = activity!!.getString(locked)
+                    textViewLockStatus.text = "Locked"
                 } else {
                     imageViewLock.setImageResource(lockImages[1])
-                    textViewLockStatus.text = activity!!.getString(unlocked)
+                    textViewLockStatus.text = "Unlocked"
                 }
                 imageViewLock.isClickable = true
             }
