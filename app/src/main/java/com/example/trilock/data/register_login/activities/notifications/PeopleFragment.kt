@@ -29,6 +29,8 @@ import kotlin.collections.mutableListOf as mutableListOf
 
 class PeopleFragment : Fragment() {
 
+    private val TAG = "PeopleFragment"
+
     private lateinit var peopleViewModel: PeopleViewModel
     private lateinit var peopleRecyclerView: RecyclerView
     val db = Firebase.firestore
@@ -36,8 +38,12 @@ class PeopleFragment : Fragment() {
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var buttonInvite: Button
     private lateinit var editTextEmailInvite: EditText
+    private lateinit var textViewLockTitle: TextView
     private lateinit var currentLock: String
     private lateinit var inviteEmail: String
+    private lateinit var guestId: String
+    private lateinit var guestName: String
+    private lateinit var lockTitle: String
 
 
     private val PREFS_FILENAME = "SHARED_PREF"
@@ -56,6 +62,7 @@ class PeopleFragment : Fragment() {
 
         buttonInvite = root.findViewById(R.id.button_invite)
         editTextEmailInvite = root.findViewById(R.id.edit_text_email_invite)
+        textViewLockTitle = root.findViewById(R.id.text_view_people_lock_title)
 
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
         linearLayoutManager = LinearLayoutManager(context)
@@ -66,6 +73,12 @@ class PeopleFragment : Fragment() {
 
         buttonInvite.setOnClickListener {
             inviteUser()
+        }
+
+        db.collection("locks").document(currentLock).get().addOnSuccessListener {
+            documentSnapshot ->
+            lockTitle = documentSnapshot["title"].toString()
+            textViewLockTitle.text = lockTitle
         }
 
         dataFirestore()
@@ -87,13 +100,15 @@ class PeopleFragment : Fragment() {
             db.collection("users")
                 .whereEqualTo("email", inviteEmail)
                 .get().addOnSuccessListener {result ->
+                    if (result.isEmpty) {
+                        toast("Unable to invite user, check that you have written their email correctly")
+                    } else {
                     for (document in result) {
                         if (inviteEmail == document["email"]) {
-                            db.collection("locks")
-                                .document(currentLock)
-                                .update("guests",FieldValue.arrayUnion(document.id))
-                        } else {
-                            toast("Unable to invite user, check that you have written their email correctly")
+                            guestId = document.id
+                            guestName = document["firstName"].toString() + " " + document["lastName"].toString()
+                            makeDialog()
+                            }
                         }
                     }
                 }
@@ -121,7 +136,6 @@ class PeopleFragment : Fragment() {
                 }
                 adapter = PeopleAdapter(userList)
                 peopleRecyclerView.adapter = adapter
-                Toast.makeText(context, "toast", Toast.LENGTH_SHORT).show()
             }
 
             .addOnFailureListener { exception ->
@@ -133,16 +147,18 @@ class PeopleFragment : Fragment() {
     private fun makeDialog() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Are you sure?")
-        builder.setMessage("This action will make ")
+        builder.setMessage("This action will make $guestName able to unlock your lock '$lockTitle'")
         builder.setNeutralButton(R.string.cancel)
         {
             dialogInterface, which ->
-            Toast.makeText(context, "Action cancelled", Toast.LENGTH_SHORT).show()
+            toast("Action cancelled")
         }
         builder.setPositiveButton(R.string.accept)
         {
-            dialogInterface, which ->
-
+                _, _ ->
+            db.collection("locks")
+                .document(currentLock)
+                .update("guests",FieldValue.arrayUnion(guestId))
         }
 
         val alertDialog: AlertDialog = builder.create()
