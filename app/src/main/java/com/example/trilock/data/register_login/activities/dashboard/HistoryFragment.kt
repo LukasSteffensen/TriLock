@@ -18,6 +18,7 @@ import com.example.trilock.data.register_login.activities.dashboard.HistoryAdapt
 import com.example.trilock.data.register_login.classes.Event
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -61,7 +62,7 @@ class HistoryFragment : Fragment() {
 
     private fun dataFirestore(lockID : String) {
         val eventList: ArrayList<Event> = ArrayList()
-        db.collection("locks").document(lockID).collection("events").get()
+        db.collection("locks").document(lockID).collection("events").orderBy("timeStamp", Query.Direction.DESCENDING).get()
             .addOnSuccessListener { result ->
                 for (document in result) {
                     val Event = Event(
