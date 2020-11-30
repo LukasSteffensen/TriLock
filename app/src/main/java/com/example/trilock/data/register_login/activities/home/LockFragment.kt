@@ -62,11 +62,9 @@ class LockFragment : Fragment() {
 
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
         currentLock = sharedPreferences.getString("LOCK", null)!!
-        if (currentLock == null) {
-            textViewLockTitle.text = "You have no lock"
-        } else {
-            updateLockTitle()
-        }
+
+        updateLockTitle()
+
         currentUser = auth.currentUser!!
         database = Firebase.database.reference
 
@@ -88,9 +86,11 @@ class LockFragment : Fragment() {
 
     private fun updateLockTitle() {
         db.collection("locks").document(currentLock).get().addOnSuccessListener {document ->
-            if (document != null) {
+            if (document != null && document.exists()) {
                 Log.i(TAG, "hello " + document.data)
                 textViewLockTitle.text = document.data!!["title"].toString()
+            } else {
+                textViewLockTitle.text = "You have no lock"
             }
         }
     }
