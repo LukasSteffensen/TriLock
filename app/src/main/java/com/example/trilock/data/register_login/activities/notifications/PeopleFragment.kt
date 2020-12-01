@@ -66,7 +66,6 @@ class PeopleFragment : Fragment() {
             ViewModelProvider(this).get(PeopleViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_people, container, false)
         val rcl = inflater.inflate(R.layout.list_people, container, false)
-        val peopleSwitch: Switch = rcl.findViewById(R.id.switch_people)
 
         buttonInvite = root.findViewById(R.id.button_invite)
         editTextEmailInvite = root.findViewById(R.id.edit_text_email_invite)

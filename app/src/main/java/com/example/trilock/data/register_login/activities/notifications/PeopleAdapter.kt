@@ -16,38 +16,26 @@ class PeopleAdapter(var people: ArrayList<User>, var isOwner: Boolean) : Recycle
 
     class PeopleViewHolder(peopleView: View) : RecyclerView.ViewHolder(peopleView) {
 
-        val personTextView: TextView
-        val switch: Switch
-        val imageViewGear: ImageView
-        val textViewGuestOrOwner: TextView
+        val personTextView: TextView = peopleView.findViewById(R.id.text_view_person)
+        val imageViewGear: ImageView = peopleView.findViewById(R.id.image_view_people_settings)
+        val textViewGuestOrOwner: TextView = peopleView.findViewById(R.id.text_view_owner_or_guest)
 
-        init {
-            personTextView = peopleView.findViewById(R.id.text_view_person)
-            switch = peopleView.findViewById(R.id.switch_people)
-            imageViewGear = peopleView.findViewById(R.id.image_view_people_settings)
-            textViewGuestOrOwner = peopleView.findViewById(R.id.text_view_owner_or_guest)
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleViewHolder {
-        //return PeopleViewHolder(LayoutInflater.from(context).inflate(R.layout.list_people, parent, false))
             val view = LayoutInflater.from(parent.context).inflate(R.layout.list_people, parent, false)
         return PeopleViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: PeopleViewHolder, position: Int) {
         holder.personTextView.text = people[position].firstName.toString()
+        holder.imageViewGear.isInvisible = !isOwner
         if (people[position].isOwner as Boolean) {
             holder.textViewGuestOrOwner.text = "Owner"
+            holder.imageViewGear.isInvisible = true
+
         } else {
             holder.textViewGuestOrOwner.text = "Guest"
-        }
-        if (!isOwner) {
-            holder.imageViewGear.isInvisible = true
-            holder.switch.isInvisible = true
-        } else {
-            holder.switch.isInvisible = false
-            holder.imageViewGear.isInvisible = false
         }
     }
 
