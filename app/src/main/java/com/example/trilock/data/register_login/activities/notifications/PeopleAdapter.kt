@@ -3,18 +3,28 @@ package com.example.trilock.data.register_login.activities.notifications
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView
+import android.widget.Switch
 import android.widget.TextView;
+import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.trilock.R
+import com.example.trilock.data.register_login.classes.User
 
-class PeopleAdapter(val people: ArrayList<String>) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
+class PeopleAdapter(val people: ArrayList<User>, val isOwner: Boolean) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
 
     class PeopleViewHolder(peopleView: View) : RecyclerView.ViewHolder(peopleView) {
 
         val personTextView: TextView
+        val switch: Switch
+        val imageViewGear: ImageView
+        val textViewGuestOrOwner: TextView
 
         init {
             personTextView = peopleView.findViewById(R.id.text_view_person)
+            switch = peopleView.findViewById(R.id.switch_people)
+            imageViewGear = peopleView.findViewById(R.id.image_view_people_settings)
+            textViewGuestOrOwner = peopleView.findViewById(R.id.text_view_owner_or_guest)
         }
     }
 
@@ -25,7 +35,16 @@ class PeopleAdapter(val people: ArrayList<String>) : RecyclerView.Adapter<People
     }
 
     override fun onBindViewHolder(holder: PeopleViewHolder, position: Int) {
-        holder.personTextView.text = people[position]
+        holder.personTextView.text = people[position].toString()
+        if (people[position].isOwner as Boolean) {
+            holder.textViewGuestOrOwner.text = "Owner"
+        } else {
+            holder.textViewGuestOrOwner.text = "Guest"
+        }
+        if (!isOwner) {
+            holder.imageViewGear.isInvisible = true
+            holder.switch.isInvisible = true
+        }
     }
 
     override fun getItemCount(): Int {

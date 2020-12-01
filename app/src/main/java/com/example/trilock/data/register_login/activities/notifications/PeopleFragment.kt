@@ -5,31 +5,26 @@ import android.content.SharedPreferences
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.isInvisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trilock.R
 import com.example.trilock.data.model.ui.people.PeopleViewModel
-import com.example.trilock.data.register_login.classes.Encryption
+import com.example.trilock.data.register_login.classes.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlin.math.log
 import kotlin.collections.mutableListOf as mutableListOf
 
 class PeopleFragment : Fragment() {
@@ -51,8 +46,13 @@ class PeopleFragment : Fragment() {
     private lateinit var guestId: String
     private lateinit var guestName: String
     private lateinit var lockTitle: String
+    private var isOwner: Boolean = false
     private lateinit var userUid: String
     private var ownerArrayList: ArrayList<String> = ArrayList()
+    private var guestArrayList: ArrayList<String> = ArrayList()
+    private var userList: ArrayList<User> = ArrayList()
+    private lateinit var user: User
+
 
 
 
@@ -77,15 +77,12 @@ class PeopleFragment : Fragment() {
         currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
 
         userUid = auth.uid.toString()
-        if (!isOwner()) {
-            buttonInvite.isInvisible = true
-            editTextEmailInvite.isInvisible = true
-        }
-
 
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
         linearLayoutManager = LinearLayoutManager(context)
         peopleRecyclerView.layoutManager = linearLayoutManager
+        isOwner()
+
 
         buttonInvite.setOnClickListener {
             inviteUser()
@@ -95,12 +92,6 @@ class PeopleFragment : Fragment() {
             documentSnapshot ->
             lockTitle = documentSnapshot["title"].toString()
             textViewLockTitle.text = lockTitle
-        }
-
-        dataFirestore()
-
-        peopleSwitch.setOnClickListener {
-            makeDialog()
         }
 
         return root
@@ -139,27 +130,6 @@ class PeopleFragment : Fragment() {
         return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
-    private fun dataFirestore() {
-
-        //Trying to collect firstnames from Database.
-        val userList: ArrayList<String> = mutableListOf<String>() as ArrayList<String>
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    val name = document.data["firstName"].toString()
-                    userList.add(name)
-                }
-                adapter = PeopleAdapter(userList)
-                peopleRecyclerView.adapter = adapter
-            }
-
-            .addOnFailureListener { exception ->
-                Log.d("TAG", "get failed with ", exception)
-                Toast.makeText(context, "Firestore not working", Toast.LENGTH_SHORT).show()
-            }
-    }
-
     private fun makeDialog() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Are you sure?")
@@ -184,18 +154,48 @@ class PeopleFragment : Fragment() {
         alertDialog.show()
     }
 
-    private fun isOwner(): Boolean {
-        var owner = false
+    private fun isOwner() {
         db.collection("locks")
             .document(currentLock)
             .get().addOnSuccessListener { document  ->
                 Log.i(TAG, document.toString())
-                val arrayList: ArrayList<String> = document.get("owners") as ArrayList<String>
-                if (arrayList.contains(userUid)) {
-                    owner = true
+                ownerArrayList = document.get("owners") as ArrayList<String>
+                guestArrayList = document.get("guests") as ArrayList<String>
+                Log.i(TAG, ownerArrayList.toString())
+                Log.i(TAG, userUid)
+                if (!ownerArrayList.contains(userUid)) {
+                    isOwner = false
+                    buttonInvite.isInvisible = true
+                    editTextEmailInvite.isInvisible = true
+                } else {
+                    isOwner = true
                 }
+                for (userId in ownerArrayList) {
+                    db.collection("users")
+                        .document(userId).get()
+                        .addOnSuccessListener {
+                        user = User(
+                            document["firstName"].toString(),
+                            true
+                        )
+                        userList.add(user)
+                    }
+                }
+                for (userId in guestArrayList) {
+                    db.collection("users")
+                        .document(userId).get()
+                        .addOnSuccessListener {
+                        user = User(
+                            document["firstName"].toString(),
+                            false
+                        )
+                        userList.add(user)
+                    }
+                }
+                Log.i(TAG, userList.toString())
+                adapter = PeopleAdapter(userList, isOwner)
+                peopleRecyclerView.adapter = adapter
             }
-        return owner
     }
 
     private fun closeKeyboardAndRemoveText() {

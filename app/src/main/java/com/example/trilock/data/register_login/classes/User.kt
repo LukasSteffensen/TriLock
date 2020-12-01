@@ -3,17 +3,15 @@ package com.example.trilock.data.register_login.classes
 class User{
 
     var firstName: String? = null
-    var lastName: String? = null
-    var email: String? = null
+    var isOwner: Boolean? = null
 
     constructor(){
 
     }
 
-    constructor(firstName: String?, lastName: String?, email: String?) {
+    constructor(firstName: String?, isOwner: Boolean?) {
         this.firstName = firstName
-        this.lastName = lastName
-        this.email = email
+        this.isOwner = isOwner
     }
 
 
