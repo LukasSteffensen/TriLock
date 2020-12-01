@@ -56,7 +56,7 @@ class PeopleAdapter(var people: ArrayList<User>,
         val textViewGuestOrOwner: TextView = peopleView.findViewById(R.id.text_view_owner_or_guest)
 
         fun bind(user: User,clickListener: PeopleAdapter.OnItemClickListener) {
-            itemView.setOnClickListener {
+            imageViewGear.setOnClickListener {
                 clickListener.onItemClicked(user)
             }
         }
