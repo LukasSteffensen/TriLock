@@ -189,8 +189,9 @@ class PeopleFragment : Fragment() {
         db.collection("locks")
             .document(currentLock)
             .get().addOnSuccessListener { document  ->
-                val array: Array<String> = document["owners"] as Array<String>
-                if (array.contains(userUid)) {
+                Log.i(TAG, document.toString())
+                val arrayList: ArrayList<String> = document.get("owners") as ArrayList<String>
+                if (arrayList.contains(userUid)) {
                     owner = true
                 }
             }

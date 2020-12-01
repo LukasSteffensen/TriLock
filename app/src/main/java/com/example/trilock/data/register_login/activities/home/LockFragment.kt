@@ -223,7 +223,6 @@ class LockFragment : Fragment() {
 
     private fun nextLock() {
         Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
-        Log.i(TAG, arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)])
 
         currentLock = if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
             arrayListOfLocks[0]
