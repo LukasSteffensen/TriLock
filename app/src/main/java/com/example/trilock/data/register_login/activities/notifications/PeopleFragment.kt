@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.isInvisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.trilock.R
 import com.example.trilock.data.model.ui.people.PeopleViewModel
 import com.example.trilock.data.register_login.classes.Encryption
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FieldValue
@@ -36,6 +39,8 @@ class PeopleFragment : Fragment() {
     private lateinit var peopleViewModel: PeopleViewModel
     private lateinit var peopleRecyclerView: RecyclerView
     val db = Firebase.firestore
+    var auth: FirebaseAuth = Firebase.auth
+
     private lateinit var adapter: PeopleAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var buttonInvite: Button
@@ -46,6 +51,9 @@ class PeopleFragment : Fragment() {
     private lateinit var guestId: String
     private lateinit var guestName: String
     private lateinit var lockTitle: String
+    private lateinit var userUid: String
+    private var ownerArrayList: ArrayList<String> = ArrayList()
+
 
 
     private val PREFS_FILENAME = "SHARED_PREF"
@@ -65,13 +73,19 @@ class PeopleFragment : Fragment() {
         buttonInvite = root.findViewById(R.id.button_invite)
         editTextEmailInvite = root.findViewById(R.id.edit_text_email_invite)
         textViewLockTitle = root.findViewById(R.id.text_view_people_lock_title)
+        sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
+        currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
+
+        userUid = auth.uid.toString()
+        if (!isOwner()) {
+            buttonInvite.isInvisible = true
+            editTextEmailInvite.isInvisible = true
+        }
+
 
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
         linearLayoutManager = LinearLayoutManager(context)
         peopleRecyclerView.layoutManager = linearLayoutManager
-
-        sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
-        currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
 
         buttonInvite.setOnClickListener {
             inviteUser()
@@ -168,6 +182,19 @@ class PeopleFragment : Fragment() {
 
         val alertDialog: AlertDialog = builder.create()
         alertDialog.show()
+    }
+
+    private fun isOwner(): Boolean {
+        var owner = false
+        db.collection("locks")
+            .document(currentLock)
+            .get().addOnSuccessListener { document  ->
+                val array: Array<String> = document["owners"] as Array<String>
+                if (array.contains(userUid)) {
+                    owner = true
+                }
+            }
+        return owner
     }
 
     private fun closeKeyboardAndRemoveText() {
