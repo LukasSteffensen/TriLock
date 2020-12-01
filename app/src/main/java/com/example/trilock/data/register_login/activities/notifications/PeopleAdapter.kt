@@ -1,5 +1,6 @@
 package com.example.trilock.data.register_login.activities.notifications
 
+import android.provider.Contacts
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.trilock.R
 import com.example.trilock.data.register_login.classes.User
 
-class PeopleAdapter(val people: ArrayList<User>, val isOwner: Boolean) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
+class PeopleAdapter(var people: ArrayList<User>, val isOwner: Boolean) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
 
     class PeopleViewHolder(peopleView: View) : RecyclerView.ViewHolder(peopleView) {
 
@@ -35,7 +36,7 @@ class PeopleAdapter(val people: ArrayList<User>, val isOwner: Boolean) : Recycle
     }
 
     override fun onBindViewHolder(holder: PeopleViewHolder, position: Int) {
-        holder.personTextView.text = people[position].toString()
+        holder.personTextView.text = people[position].firstName.toString()
         if (people[position].isOwner as Boolean) {
             holder.textViewGuestOrOwner.text = "Owner"
         } else {
@@ -51,6 +52,10 @@ class PeopleAdapter(val people: ArrayList<User>, val isOwner: Boolean) : Recycle
         return people.size
     }
 
+    fun update(userList: ArrayList<User>) {
+        people = userList
+        notifyDataSetChanged()
+    }
 }
 
 

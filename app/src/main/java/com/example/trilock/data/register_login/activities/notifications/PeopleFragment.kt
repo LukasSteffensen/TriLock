@@ -81,6 +81,8 @@ class PeopleFragment : Fragment() {
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
         linearLayoutManager = LinearLayoutManager(context)
         peopleRecyclerView.layoutManager = linearLayoutManager
+        adapter = PeopleAdapter(userList, isOwner)
+        peopleRecyclerView.adapter = adapter
         isOwner()
 
 
@@ -171,30 +173,38 @@ class PeopleFragment : Fragment() {
                     isOwner = true
                 }
                 for (userId in ownerArrayList) {
+                    Log.i("HELLOOOOO", userId)
                     db.collection("users")
                         .document(userId).get()
                         .addOnSuccessListener {
-                        user = User(
-                            document["firstName"].toString(),
-                            true
-                        )
-                        userList.add(user)
-                    }
+                            if(document != null && document.exists()) {
+                                Log.i("GET?? INSTEAD",document.data?.get("firstName").toString())
+                                Log.i("GET INSTEAD",document.get("firstName").toString())
+                                Log.i("second for loop", document.data!!["firstName"].toString())
+                                user = User(
+                                    document.data!!["firstName"].toString(),
+                                    true
+                                )
+                                userList.add(user)
+                                adapter.notifyDataSetChanged()
+                            }
+                        }
                 }
                 for (userId in guestArrayList) {
+                    Log.i("HELLOOOOO", userId)
                     db.collection("users")
                         .document(userId).get()
                         .addOnSuccessListener {
-                        user = User(
+                            Log.i(TAG,document.data!!["firstName"].toString())
+                            user = User(
                             document["firstName"].toString(),
                             false
                         )
-                        userList.add(user)
-                    }
+                            userList.add(user)
+                            adapter.update(userList)
+                        }
                 }
                 Log.i(TAG, userList.toString())
-                adapter = PeopleAdapter(userList, isOwner)
-                peopleRecyclerView.adapter = adapter
             }
     }
 
