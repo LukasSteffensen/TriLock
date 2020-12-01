@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.trilock.R
 import com.example.trilock.data.register_login.classes.User
 
-class PeopleAdapter(var people: ArrayList<User>, val isOwner: Boolean) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
+class PeopleAdapter(var people: ArrayList<User>, var isOwner: Boolean) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
 
     class PeopleViewHolder(peopleView: View) : RecyclerView.ViewHolder(peopleView) {
 
@@ -20,6 +20,8 @@ class PeopleAdapter(var people: ArrayList<User>, val isOwner: Boolean) : Recycle
         val switch: Switch
         val imageViewGear: ImageView
         val textViewGuestOrOwner: TextView
+
+
 
         init {
             personTextView = peopleView.findViewById(R.id.text_view_person)
@@ -45,6 +47,9 @@ class PeopleAdapter(var people: ArrayList<User>, val isOwner: Boolean) : Recycle
         if (!isOwner) {
             holder.imageViewGear.isInvisible = true
             holder.switch.isInvisible = true
+        } else {
+            holder.switch.isInvisible = false
+            holder.imageViewGear.isInvisible = false
         }
     }
 
@@ -52,8 +57,9 @@ class PeopleAdapter(var people: ArrayList<User>, val isOwner: Boolean) : Recycle
         return people.size
     }
 
-    fun update(userList: ArrayList<User>) {
+    fun update(userList: ArrayList<User>, updateOwner: Boolean) {
         people = userList
+        isOwner = updateOwner
         notifyDataSetChanged()
     }
 }

@@ -24,8 +24,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlin.math.log
-import kotlin.collections.mutableListOf as mutableListOf
 
 class PeopleFragment : Fragment() {
 
@@ -83,7 +81,7 @@ class PeopleFragment : Fragment() {
         peopleRecyclerView.layoutManager = linearLayoutManager
         adapter = PeopleAdapter(userList, isOwner)
         peopleRecyclerView.adapter = adapter
-        isOwner()
+        ownerCheckAndAdapterUpdate()
 
 
         buttonInvite.setOnClickListener {
@@ -156,7 +154,7 @@ class PeopleFragment : Fragment() {
         alertDialog.show()
     }
 
-    private fun isOwner() {
+    private fun ownerCheckAndAdapterUpdate() {
         db.collection("locks")
             .document(currentLock)
             .get().addOnSuccessListener { document  ->
@@ -176,17 +174,15 @@ class PeopleFragment : Fragment() {
                     Log.i("HELLOOOOO", userId)
                     db.collection("users")
                         .document(userId).get()
-                        .addOnSuccessListener {
-                            if(document != null && document.exists()) {
-                                Log.i("GET?? INSTEAD",document.data?.get("firstName").toString())
-                                Log.i("GET INSTEAD",document.get("firstName").toString())
-                                Log.i("second for loop", document.data!!["firstName"].toString())
+                        .addOnSuccessListener { userDocument ->
+                            if(userDocument != null && userDocument.exists()) {
+                                Log.i("second for loop", userDocument.data!!["firstName"].toString())
                                 user = User(
-                                    document.data!!["firstName"].toString(),
+                                    userDocument.data!!["firstName"].toString(),
                                     true
                                 )
                                 userList.add(user)
-                                adapter.notifyDataSetChanged()
+                                adapter.update(userList, isOwner)
                             }
                         }
                 }
@@ -194,14 +190,14 @@ class PeopleFragment : Fragment() {
                     Log.i("HELLOOOOO", userId)
                     db.collection("users")
                         .document(userId).get()
-                        .addOnSuccessListener {
-                            Log.i(TAG,document.data!!["firstName"].toString())
+                        .addOnSuccessListener {guestDocument ->
+                            Log.i(TAG, guestDocument.data!!["firstName"].toString())
                             user = User(
-                            document["firstName"].toString(),
+                            guestDocument["firstName"].toString(),
                             false
                         )
                             userList.add(user)
-                            adapter.update(userList)
+                            adapter.update(userList, isOwner)
                         }
                 }
                 Log.i(TAG, userList.toString())
