@@ -58,7 +58,7 @@ class PeopleAdapter(var people: ArrayList<User>, var isOwner: Boolean) : Recycle
     fun update(userList: ArrayList<User>, updateOwner: Boolean) {
         people = userList
         isOwner = updateOwner
-        userList.sortByDescending { isOwner.toString() }
+        people.sortByDescending { isOwner.toString() }
         notifyDataSetChanged()
     }
 }

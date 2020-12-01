@@ -219,6 +219,7 @@ class LockFragment : Fragment() {
         editor.putString("LOCK", currentLock)
         editor.apply()
         Log.i(TAG, currentLock)
+        Log.i(TAG, sharedPreferences.getString("LOCK", "something not good").toString())
     }
 
     private fun nextLock() {
@@ -247,12 +248,12 @@ class LockFragment : Fragment() {
                         for (document in result) {
                             arrayListOfLocks.add(document.id)
                         }
+                        if (arrayListOfLocks.size == 1) {
+                        saveLockSelection(arrayListOfLocks[0])
+                        currentLock = arrayListOfLocks[0]
+                        updateLockTitle()
+                        }
                     }
-                if (arrayListOfLocks.size == 1) {
-                    saveLockSelection(arrayListOfLocks[0])
-                    currentLock = arrayListOfLocks[0]
-                    updateLockTitle()
-                }
                 currentLockStatus(currentLock)
             }
     }
