@@ -21,8 +21,6 @@ class PeopleAdapter(var people: ArrayList<User>, var isOwner: Boolean) : Recycle
         val imageViewGear: ImageView
         val textViewGuestOrOwner: TextView
 
-
-
         init {
             personTextView = peopleView.findViewById(R.id.text_view_person)
             switch = peopleView.findViewById(R.id.switch_people)
@@ -60,6 +58,7 @@ class PeopleAdapter(var people: ArrayList<User>, var isOwner: Boolean) : Recycle
     fun update(userList: ArrayList<User>, updateOwner: Boolean) {
         people = userList
         isOwner = updateOwner
+        userList.sortByDescending { isOwner.toString() }
         notifyDataSetChanged()
     }
 }
