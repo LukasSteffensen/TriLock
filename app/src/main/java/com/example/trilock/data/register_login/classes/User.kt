@@ -5,10 +5,6 @@ class User{
     var firstName: String? = null
     var isOwner: Boolean? = null
 
-    constructor(){
-
-    }
-
     constructor(firstName: String?, isOwner: Boolean?) {
         this.firstName = firstName
         this.isOwner = isOwner

@@ -25,7 +25,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-class PeopleFragment : Fragment() {
+class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
 
     private val TAG = "PeopleFragment"
 
@@ -78,7 +78,7 @@ class PeopleFragment : Fragment() {
         peopleRecyclerView = root.findViewById(R.id.recyclerview_people)
         linearLayoutManager = LinearLayoutManager(context)
         peopleRecyclerView.layoutManager = linearLayoutManager
-        adapter = PeopleAdapter(userList, isOwner)
+        adapter = PeopleAdapter(userList, this, isOwner)
         peopleRecyclerView.adapter = adapter
         ownerCheckAndAdapterUpdate()
 
@@ -94,6 +94,10 @@ class PeopleFragment : Fragment() {
         }
 
         return root
+    }
+
+    override fun onItemClicked(user: User) {
+        TODO("Not yet implemented")
     }
 
     private fun inviteUser() {

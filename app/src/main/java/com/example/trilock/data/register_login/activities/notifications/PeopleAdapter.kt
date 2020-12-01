@@ -4,6 +4,7 @@ import android.provider.Contacts
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView
 import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView;
@@ -12,17 +13,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.trilock.R
 import com.example.trilock.data.register_login.classes.User
 
-class PeopleAdapter(var people: ArrayList<User>, var isOwner: Boolean) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
-
-    class PeopleViewHolder(peopleView: View) : RecyclerView.ViewHolder(peopleView) {
-
-        val personTextView: TextView = peopleView.findViewById(R.id.text_view_person)
-        val imageViewGear: ImageView = peopleView.findViewById(R.id.image_view_people_settings)
-        val textViewGuestOrOwner: TextView = peopleView.findViewById(R.id.text_view_owner_or_guest)
-
-    }
+class PeopleAdapter(var people: ArrayList<User>,
+                    private val itemClickListener: OnItemClickListener, var isOwner: Boolean) : RecyclerView.Adapter<PeopleAdapter.PeopleViewHolder>(){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleViewHolder {
+        //return PeopleViewHolder(LayoutInflater.from(context).inflate(R.layout.list_people, parent, false))
             val view = LayoutInflater.from(parent.context).inflate(R.layout.list_people, parent, false)
         return PeopleViewHolder(view)
     }
@@ -33,10 +28,10 @@ class PeopleAdapter(var people: ArrayList<User>, var isOwner: Boolean) : Recycle
         if (people[position].isOwner as Boolean) {
             holder.textViewGuestOrOwner.text = "Owner"
             holder.imageViewGear.isInvisible = true
-
         } else {
             holder.textViewGuestOrOwner.text = "Guest"
         }
+        holder.bind(people[position], itemClickListener)
     }
 
     override fun getItemCount(): Int {
@@ -49,6 +44,26 @@ class PeopleAdapter(var people: ArrayList<User>, var isOwner: Boolean) : Recycle
         people.sortByDescending { isOwner.toString() }
         notifyDataSetChanged()
     }
+
+    interface OnItemClickListener{
+        fun onItemClicked(user: User)
+    }
+
+    class PeopleViewHolder(peopleView: View) : RecyclerView.ViewHolder(peopleView) {
+
+        val personTextView: TextView = peopleView.findViewById(R.id.text_view_person)
+        val imageViewGear: ImageView = peopleView.findViewById(R.id.image_view_people_settings)
+        val textViewGuestOrOwner: TextView = peopleView.findViewById(R.id.text_view_owner_or_guest)
+
+        fun bind(user: User,clickListener: PeopleAdapter.OnItemClickListener) {
+            itemView.setOnClickListener {
+                clickListener.onItemClicked(user)
+            }
+        }
+    }
+
 }
+
+
 
 
