@@ -1,10 +1,12 @@
 package com.example.trilock.data.register_login.activities.home
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isInvisible
@@ -14,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.trilock.R
 import com.example.trilock.R.string.locked
 import com.example.trilock.R.string.unlocked
+import com.example.trilock.data.model.LoginActivity
 import com.example.trilock.data.model.ui.lock.LockViewModel
 import com.example.trilock.data.register_login.activities.AddLockActivity
 import com.google.firebase.Timestamp.now
@@ -51,6 +54,8 @@ class LockFragment : Fragment() {
     private lateinit var textViewLockStatus: TextView
     private lateinit var textViewLockTitle: TextView
     private var arrayListOfLocks: ArrayList<String> = ArrayList()
+    private lateinit var alertDialogBuilder: AlertDialog.Builder
+
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -69,6 +74,7 @@ class LockFragment : Fragment() {
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
         currentLock = sharedPreferences.getString("LOCK", "You have no lock")!!
 
+        alertDialogBuilder = AlertDialog.Builder(context)
 
         currentUser = auth.currentUser!!
         database = Firebase.database.reference
@@ -113,14 +119,15 @@ class LockFragment : Fragment() {
     //handle item clicks of menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         //get item id to handle item clicks
-        val id = item!!.itemId
+        val id = item.itemId
         //handle item clicks
         if (id == R.id.action_add){
             val intent = Intent(context, AddLockActivity::class.java)
             startActivity(intent)
-        }
-        if (id == R.id.action_next){
+        } else if (id == R.id.action_next){
             nextLock()
+        } else if (id == R.id.action_log_out){
+            alertLogOut()
         }
 
         return super.onOptionsItemSelected(item)
@@ -169,13 +176,14 @@ class LockFragment : Fragment() {
         val statusListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if(dataSnapshot.value.toString() == "0") {
+                    imageViewLock.setImageResource(lockImages[1])
+                    textViewLockStatus.text = "unLocked"
+                    imageViewLock.isClickable = true
+                } else {
                     imageViewLock.setImageResource(lockImages[0])
                     textViewLockStatus.text = "Locked"
-                } else {
-                    imageViewLock.setImageResource(lockImages[1])
-                    textViewLockStatus.text = "Unlocked"
+                    imageViewLock.isClickable = true
                 }
-                imageViewLock.isClickable = true
             }
             override fun onCancelled(databaseError: DatabaseError) {
                 Log.i(TAG, databaseError.message)
@@ -249,4 +257,24 @@ class LockFragment : Fragment() {
                 currentLockStatus(currentLock)
             }
     }
+
+    private fun logOut() {
+        auth.signOut()
+        val intent = Intent(activity, LoginActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+    }
+
+    private fun alertLogOut() {
+        alertDialogBuilder.setTitle("Are you sure you want to log out?")
+        alertDialogBuilder.setMessage("This will require you to use email and password next time you want to log in")
+        alertDialogBuilder.setPositiveButton("Yes") { _, _ ->
+            logOut()
+        }
+
+        alertDialogBuilder.setNegativeButton("No") { _, _ ->
+        }
+        alertDialogBuilder.show()
+    }
+
 }

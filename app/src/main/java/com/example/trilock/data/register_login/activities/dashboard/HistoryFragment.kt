@@ -1,4 +1,4 @@
-package com.example.trilock.data.model.ui.history
+package com.example.trilock.data.register_login.activities.dashboard
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trilock.R
-import com.example.trilock.data.register_login.activities.dashboard.HistoryAdapter
+import com.example.trilock.data.model.ui.history.HistoryViewModel
 import com.example.trilock.data.register_login.classes.Event
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth

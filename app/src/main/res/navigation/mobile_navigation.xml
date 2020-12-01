@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="com.example.trilock.data.model.ui.history.HistoryFragment"
+        android:name="com.example.trilock.data.register_login.activities.dashboard.HistoryFragment"
         android:label="Activity History"
         tools:layout="@layout/fragment_history" />
 

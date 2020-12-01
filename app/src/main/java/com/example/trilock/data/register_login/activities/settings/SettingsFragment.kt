@@ -46,38 +46,12 @@ class SettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-
-
-
         settingsViewModel =
                 ViewModelProvider(this).get(SettingsViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_settings, container, false)
         val textView: TextView = root.findViewById(R.id.text_settings)
         val switch: Switch = root.findViewById(R.id.switch_biometrics)
         mTextView = root.findViewById(R.id.text_view_name_setting)
-
-        alertDialogBuilder = AlertDialog.Builder(context)
-
-        val buttonLogOut: Button = root.findViewById(R.id.button_log_out)
-        buttonLogOut.setOnClickListener {
-            alertLogOut()
-        }
-        /*readData()
-        var userName: String
-        val docRef = db.collection("users").document("DLahkmTUQAt6cVBGcAOz")
-        docRef.get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    Log.d("TAG", "DocumentSnapshot data: ${document.data}")
-                    userName = document.data!!["firstName"].toString() + " " + document.data!!["lastName"].toString()
-                    mTextView.text = userName
-                } else {
-                    Log.d("TAG", "No such document")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.d("TAG", "get failed with ", exception)
-            }*/
 
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
         isSwitched = sharedPreferences.getBoolean("SWITCH", false)
@@ -90,7 +64,6 @@ class SettingsFragment : Fragment() {
         switch.setOnCheckedChangeListener { _, isSwitched ->
             saveBioAuth(isSwitched)
         }
-
 
         settingsViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
@@ -105,38 +78,5 @@ class SettingsFragment : Fragment() {
     }
     private fun toast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun logOut() {
-        auth.signOut()
-        val intent = Intent(activity, LoginActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
-    }
-
-    private fun alertLogOut() {
-        alertDialogBuilder.setTitle("Are you sure you want to log out?")
-        alertDialogBuilder.setMessage("This will require you to use email and password next time you want to log in")
-        alertDialogBuilder.setPositiveButton("Yes") { _, _ ->
-            logOut()
-        }
-
-        alertDialogBuilder.setNegativeButton("No") { _, _ ->
-        }
-        alertDialogBuilder.show()
-    }
-
-    private fun readData() {
-        db.collection("users")
-                .get()
-                .addOnSuccessListener { result ->
-                    val userList = ArrayList<User>()
-                    for (document in result) {
-                        Log.d("Hej med dig din bussema", "nd")
-                        //userList.add(User(document["IewgWKy836z2QACxYHAM"].toString(), "User"))
-                    }
-                }.addOnFailureListener { exception ->
-                    Log.w("Bye", "Error", exception)
-        }
     }
 }
