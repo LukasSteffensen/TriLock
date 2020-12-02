@@ -37,7 +37,6 @@ class HistoryFragment : Fragment() {
     var auth: FirebaseAuth = Firebase.auth
 
     private val PREFS_FILENAME = "SHARED_PREF"
-    private lateinit var currentLock: String
     lateinit var currentUser: FirebaseUser
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var currentLockID : String
@@ -64,10 +63,30 @@ class HistoryFragment : Fragment() {
         currentLockID = sharedPreferences.getString("LOCK", "You have no lock")!!
 
         dataFirestore(currentLockID)
-        getLock(currentLockID)
+        setLockTitle(currentLockID)
         currentUser = auth.currentUser!!
 
+        getLocks()
+
         return root
+    }
+
+    private fun nextLock() {
+        if (currentLockID == "You have no lock") {
+            toast("You have no locks")
+        } else {
+            Log.i(TAG,""+arrayListOfLocks.indexOf(currentLockID))
+            currentLockID = if (arrayListOfLocks.indexOf(currentLockID)+1 == arrayListOfLocks.size) {
+                toast("You only have one lock")
+                arrayListOfLocks[0]
+            } else {
+                arrayListOfLocks[arrayListOfLocks.indexOf(currentLockID)+1]
+            }
+
+            saveLockSelection(currentLockID)
+
+            updateLockTitle()
+        }
     }
 
     private fun dataFirestore(lockID : String) {
@@ -118,7 +137,7 @@ class HistoryFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun getLock(lockID: String) {
+    private fun setLockTitle(lockID: String) {
         db.collection("locks").document(lockID).get().addOnSuccessListener { document ->
             if(document != null && document.exists()){
                 lockTitleTextView.text = document["title"].toString()
@@ -134,36 +153,36 @@ class HistoryFragment : Fragment() {
         Log.i(TAG, sharedPreferences.getString("LOCK", "something not good").toString())
     }
 
-    private fun nextLock() {
+    private fun getLocks() {
         db.collection("locks")
             .whereArrayContains("owners", currentUser.uid)
             .get().addOnSuccessListener {result ->
                 for (document in result){
                     arrayListOfLocks.add(document.id)
+                    if (currentLockID == "You have no lock"){
+                        currentLockID = document.id
+                    }
                 }
                 db.collection("locks")
                     .whereArrayContains("guests", currentUser.uid)
                     .get().addOnSuccessListener { result ->
                         for (document in result) {
                             arrayListOfLocks.add(document.id)
+                            if (currentLockID == "You have no lock"){
+                                currentLockID = document.id
+                            }
                         }
                         if (arrayListOfLocks.size == 1) {
                             saveLockSelection(arrayListOfLocks[0])
-                            currentLock = arrayListOfLocks[0]
+                            currentLockID = arrayListOfLocks[0]
+                            updateLockTitle()
                         }
                     }
             }
+    }
 
-        Log.i(TAG,""+arrayListOfLocks.indexOf(currentLockID))
-
-        currentLockID = if (arrayListOfLocks.indexOf(currentLockID)+1 == arrayListOfLocks.size) {
-            arrayListOfLocks[0]
-        } else {
-            arrayListOfLocks[arrayListOfLocks.indexOf(currentLockID)+1]
-        }
-
-        saveLockSelection(currentLockID)
-        updateLockTitle()
+    private fun toast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     private fun updateLockTitle() {
@@ -178,12 +197,18 @@ class HistoryFragment : Fragment() {
     }
 
     private fun logOut() {
-
         auth.signOut()
+        resetSharedPreferences()
         val intent = Intent(activity, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
     }
+
+    private fun resetSharedPreferences() {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.clear().apply()
+    }
+
 
     private fun alertLogOut() {
         alertDialogBuilder.setTitle("Are you sure you want to log out?")
