@@ -42,7 +42,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     private lateinit var currentLock: String
     private lateinit var inviteEmail: String
     private lateinit var guestId: String
-    private lateinit var guestName: String
+    private lateinit var guestLastName: String
+    private lateinit var guestFirstName: String
     private lateinit var lockTitle: String
     private var isOwner: Boolean = false
     private lateinit var userUid: String
@@ -125,7 +126,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                     for (document in result) {
                         if (inviteEmail == document["email"]) {
                             guestId = document.id
-                            guestName = document["firstName"].toString() + " " + document["lastName"].toString()
+                            guestFirstName = document["firstName"].toString()
+                            guestLastName = document["lastName"].toString()
                             makeDialog()
                             }
                         }
@@ -145,7 +147,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     private fun makeDialog() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Are you sure?")
-        builder.setMessage("This action will make $guestName able to unlock your lock '$lockTitle'")
+        builder.setMessage("This action will make $guestFirstName $guestLastName Name able to unlock your lock '$lockTitle'")
         builder.setNeutralButton(R.string.cancel)
         {
             dialogInterface, which ->
@@ -157,9 +159,13 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                 _, _ ->
             db.collection("locks")
                 .document(currentLock)
-                .update("guests",FieldValue.arrayUnion(guestId))
-            toast("$guestName has now been added to your lock")
-            closeKeyboardAndRemoveText()
+                .update("guests",FieldValue.arrayUnion(guestId)).addOnSuccessListener {
+                    toast("$guestFirstName $guestLastName has now been added to your lock")
+                    val guest: User = User(guestFirstName, false, guestId)
+                    userList.add(guest)
+                    adapter.update(userList, true)
+                    closeKeyboardAndRemoveText()
+                }
         }
 
         val alertDialog: AlertDialog = builder.create()
