@@ -9,6 +9,7 @@ import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.isInvisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -222,17 +223,26 @@ class LockFragment : Fragment() {
         Log.i(TAG, sharedPreferences.getString("LOCK", "something not good").toString())
     }
 
+    private fun toast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
     private fun nextLock() {
-        Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
-
-        currentLock = if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
-            arrayListOfLocks[0]
+        if (currentLock == "You have no lock") {
+            toast("You have no locks")
         } else {
-            arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
-        }
+            Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
+            currentLock = if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
+                toast("You only have one lock")
+                arrayListOfLocks[0]
+            } else {
+                arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
+            }
 
-        saveLockSelection(currentLock)
-        updateLockTitle()
+            saveLockSelection(currentLock)
+
+            updateLockTitle()
+        }
     }
 
     private fun getLocks() {
@@ -241,12 +251,18 @@ class LockFragment : Fragment() {
             .get().addOnSuccessListener {result ->
                 for (document in result){
                     arrayListOfLocks.add(document.id)
+                    if (currentLock == "You have no lock"){
+                        currentLock = document.id
+                    }
                 }
                 db.collection("locks")
                     .whereArrayContains("guests", currentUser.uid)
                     .get().addOnSuccessListener { result ->
                         for (document in result) {
                             arrayListOfLocks.add(document.id)
+                            if (currentLock == "You have no lock"){
+                                currentLock = document.id
+                            }
                         }
                         if (arrayListOfLocks.size == 1) {
                         saveLockSelection(arrayListOfLocks[0])
@@ -260,9 +276,15 @@ class LockFragment : Fragment() {
 
     private fun logOut() {
         auth.signOut()
+        resetSharedPreferences()
         val intent = Intent(activity, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
+    }
+
+    private fun resetSharedPreferences() {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.clear().apply()
     }
 
     private fun alertLogOut() {

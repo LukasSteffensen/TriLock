@@ -178,6 +178,7 @@ class HistoryFragment : Fragment() {
     }
 
     private fun logOut() {
+
         auth.signOut()
         val intent = Intent(activity, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
