@@ -97,7 +97,16 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     }
 
     override fun onItemClicked(user: User) {
-        TODO("Not yet implemented")
+        removeGuest(user)
+    }
+
+    private fun removeGuest(user: User) {
+        db.collection("locks")
+            .document(currentLock)
+            .update("guests", FieldValue.arrayRemove(user.userId)).addOnSuccessListener {
+                userList.remove(user)
+                adapter.update(userList, true)
+            }
     }
 
     private fun inviteUser() {
@@ -182,7 +191,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                                 Log.i("second for loop", userDocument.data!!["firstName"].toString())
                                 user = User(
                                     userDocument.data!!["firstName"].toString(),
-                                    true
+                                    true,
+                                    userId
                                 )
                                 userList.add(user)
                                 adapter.update(userList, isOwner)
@@ -197,7 +207,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                             Log.i(TAG, guestDocument.data!!["firstName"].toString())
                             user = User(
                             guestDocument["firstName"].toString(),
-                            false
+                            false,
+                                userId
                         )
                             userList.add(user)
                             adapter.update(userList, isOwner)
