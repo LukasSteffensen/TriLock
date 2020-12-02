@@ -33,13 +33,10 @@ class SettingsFragment : Fragment() {
     private val PREFS_FILENAME = "SHARED_PREF"
     private lateinit var sharedPreferences: SharedPreferences
     private var isSwitched = false
-    private lateinit var currentLock: String
     lateinit var mTextView : TextView
-    lateinit var nameTextView : TextView
     private val db = Firebase.firestore
     var auth: FirebaseAuth = Firebase.auth
     private lateinit var userUid: String
-    private var arrayListOfLocks: ArrayList<String> = ArrayList()
     private lateinit var alertDialogBuilder: AlertDialog.Builder
 
 
@@ -56,7 +53,6 @@ class SettingsFragment : Fragment() {
         val textView: TextView = root.findViewById(R.id.text_settings)
         val switch: Switch = root.findViewById(R.id.switch_biometrics)
         mTextView = root.findViewById(R.id.text_view_name_setting)
-        nameTextView = root.findViewById(R.id.text_view_lock_name)
         userUid = auth.uid.toString()
 
         setUserName()
@@ -91,40 +87,8 @@ class SettingsFragment : Fragment() {
         db.collection("users")
             .document(userUid)
             .get().addOnSuccessListener { document ->
-                nameTextView.text = document.data!!["firstName"].toString() + " " + document.data!!["lastName"].toString()
+                mTextView.text = document.data!!["firstName"].toString() + " " + document.data!!["lastName"].toString()
             }
-    }
-
-    private fun nextLock() {
-        Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
-
-        currentLock = if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
-            arrayListOfLocks[0]
-        } else {
-            arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
-        }
-
-        saveLockSelection(currentLock)
-        updateLockTitle()
-    }
-
-    private fun updateLockTitle() {
-        db.collection("locks").document(currentLock).get().addOnSuccessListener {document ->
-            if (document != null && document.exists()) {
-                Log.i(TAG, "hello " + document.data)
-                nameTextView.text = document.data!!["title"].toString()
-            } else {
-                nameTextView.text = "You have no lock"
-            }
-        }
-    }
-
-    private fun saveLockSelection(currentLock: String) {
-        val editor: SharedPreferences.Editor = sharedPreferences.edit()
-        editor.putString("LOCK", currentLock)
-        editor.apply()
-        Log.i(TAG, currentLock)
-        Log.i(TAG, sharedPreferences.getString("LOCK", "something not good").toString())
     }
 
     private fun logOut() {
@@ -153,7 +117,7 @@ class SettingsFragment : Fragment() {
     }
     //inflate the menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater!!.inflate(R.menu.options_menu, menu)
+        inflater!!.inflate(R.menu.options_menu_settings, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
     //handle item clicks of menu
@@ -164,8 +128,6 @@ class SettingsFragment : Fragment() {
         if (id == R.id.action_add) {
             val intent = Intent(context, AddLockActivity::class.java)
             startActivity(intent)
-        } else if (id == R.id.action_next) {
-            nextLock()
         } else if (id == R.id.action_log_out) {
             alertLogOut()
         }
