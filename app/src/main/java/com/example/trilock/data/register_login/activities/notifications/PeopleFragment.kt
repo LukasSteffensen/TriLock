@@ -85,7 +85,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
 
 
         buttonInvite.setOnClickListener {
-            inviteUser()
+            checkInputAndGetUserFromDatabase()
         }
 
         db.collection("locks").document(currentLock).get().addOnSuccessListener {
@@ -110,7 +110,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
             }
     }
 
-    private fun inviteUser() {
+    private fun checkInputAndGetUserFromDatabase() {
         if (editTextEmailInvite.text.isEmpty()) {
             inputAgain(editTextEmailInvite, "Please put in the email of the user you would like to invite")
         } else if (!editTextEmailInvite.text.toString().isEmailValid()) {
@@ -157,19 +157,23 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
         builder.setPositiveButton(R.string.accept)
         {
                 _, _ ->
-            db.collection("locks")
-                .document(currentLock)
-                .update("guests",FieldValue.arrayUnion(guestId)).addOnSuccessListener {
-                    toast("$guestFirstName $guestLastName has now been added to your lock")
-                    val guest: User = User(guestFirstName, false, guestId)
-                    userList.add(guest)
-                    adapter.update(userList, true)
-                    closeKeyboardAndRemoveText()
-                }
+            addGuest()
         }
 
         val alertDialog: AlertDialog = builder.create()
         alertDialog.show()
+    }
+
+    private fun addGuest() {
+        db.collection("locks")
+            .document(currentLock)
+            .update("guests",FieldValue.arrayUnion(guestId)).addOnSuccessListener {
+                toast("$guestFirstName $guestLastName has now been added to your lock")
+                val guest: User = User(guestFirstName, false, guestId)
+                userList.add(guest)
+                adapter.update(userList, true)
+                closeKeyboardAndRemoveText()
+            }
     }
 
     private fun ownerCheckAndAdapterUpdate() {
