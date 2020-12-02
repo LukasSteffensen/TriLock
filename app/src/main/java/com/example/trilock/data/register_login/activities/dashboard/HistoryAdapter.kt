@@ -1,9 +1,15 @@
 package com.example.trilock.data.register_login.activities.dashboard
 
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView
+import android.widget.TextView
+import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.RecyclerView
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.trilock.R
@@ -12,10 +18,6 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class HistoryAdapter(val history: ArrayList<Event>) : RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>(){
-
-
-    private val db = Firebase.firestore
-    private var isLocked = false
 
     class HistoryViewHolder(historyView: View) : RecyclerView.ViewHolder(historyView) {
 

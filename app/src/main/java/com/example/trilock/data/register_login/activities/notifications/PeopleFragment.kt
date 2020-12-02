@@ -42,7 +42,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     private lateinit var currentLock: String
     private lateinit var inviteEmail: String
     private lateinit var guestId: String
-    private lateinit var guestName: String
+    private lateinit var guestLastName: String
+    private lateinit var guestFirstName: String
     private lateinit var lockTitle: String
     private var isOwner: Boolean = false
     private lateinit var userUid: String
@@ -84,7 +85,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
 
 
         buttonInvite.setOnClickListener {
-            inviteUser()
+            checkInputAndGetUserFromDatabase()
         }
 
         db.collection("locks").document(currentLock).get().addOnSuccessListener {
@@ -97,10 +98,19 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     }
 
     override fun onItemClicked(user: User) {
-        TODO("Not yet implemented")
+        removeGuest(user)
     }
 
-    private fun inviteUser() {
+    private fun removeGuest(user: User) {
+        db.collection("locks")
+            .document(currentLock)
+            .update("guests", FieldValue.arrayRemove(user.userId)).addOnSuccessListener {
+                userList.remove(user)
+                adapter.update(userList, true)
+            }
+    }
+
+    private fun checkInputAndGetUserFromDatabase() {
         if (editTextEmailInvite.text.isEmpty()) {
             inputAgain(editTextEmailInvite, "Please put in the email of the user you would like to invite")
         } else if (!editTextEmailInvite.text.toString().isEmailValid()) {
@@ -116,7 +126,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                     for (document in result) {
                         if (inviteEmail == document["email"]) {
                             guestId = document.id
-                            guestName = document["firstName"].toString() + " " + document["lastName"].toString()
+                            guestFirstName = document["firstName"].toString()
+                            guestLastName = document["lastName"].toString()
                             makeDialog()
                             }
                         }
@@ -136,7 +147,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     private fun makeDialog() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Are you sure?")
-        builder.setMessage("This action will make $guestName able to unlock your lock '$lockTitle'")
+        builder.setMessage("This action will make $guestFirstName $guestLastName Name able to unlock your lock '$lockTitle'")
         builder.setNeutralButton(R.string.cancel)
         {
             dialogInterface, which ->
@@ -146,15 +157,23 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
         builder.setPositiveButton(R.string.accept)
         {
                 _, _ ->
-            db.collection("locks")
-                .document(currentLock)
-                .update("guests",FieldValue.arrayUnion(guestId))
-            toast("$guestName has now been added to your lock")
-            closeKeyboardAndRemoveText()
+            addGuest()
         }
 
         val alertDialog: AlertDialog = builder.create()
         alertDialog.show()
+    }
+
+    private fun addGuest() {
+        db.collection("locks")
+            .document(currentLock)
+            .update("guests",FieldValue.arrayUnion(guestId)).addOnSuccessListener {
+                toast("$guestFirstName $guestLastName has now been added to your lock")
+                val guest: User = User(guestFirstName, false, guestId)
+                userList.add(guest)
+                adapter.update(userList, true)
+                closeKeyboardAndRemoveText()
+            }
     }
 
     private fun ownerCheckAndAdapterUpdate() {
@@ -182,7 +201,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                                 Log.i("second for loop", userDocument.data!!["firstName"].toString())
                                 user = User(
                                     userDocument.data!!["firstName"].toString(),
-                                    true
+                                    true,
+                                    userId
                                 )
                                 userList.add(user)
                                 adapter.update(userList, isOwner)
@@ -197,7 +217,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                             Log.i(TAG, guestDocument.data!!["firstName"].toString())
                             user = User(
                             guestDocument["firstName"].toString(),
-                            false
+                            false,
+                                userId
                         )
                             userList.add(user)
                             adapter.update(userList, isOwner)

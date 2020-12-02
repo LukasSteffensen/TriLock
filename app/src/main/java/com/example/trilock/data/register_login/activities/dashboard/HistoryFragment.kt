@@ -1,12 +1,12 @@
 package com.example.trilock.data.register_login.activities.dashboard
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -14,9 +14,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trilock.R
+import com.example.trilock.data.model.LoginActivity
 import com.example.trilock.data.model.ui.history.HistoryViewModel
+import com.example.trilock.data.register_login.activities.AddLockActivity
 import com.example.trilock.data.register_login.classes.Event
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
@@ -27,14 +30,19 @@ class HistoryFragment : Fragment() {
     private lateinit var historyViewModel: HistoryViewModel
     private lateinit var historyRecyclerView: RecyclerView
     val db = Firebase.firestore
+    private val TAG = "HistoryFragment"
+    private var arrayListOfLocks: ArrayList<String> = ArrayList()
     private lateinit var adapter: HistoryAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
     var auth: FirebaseAuth = Firebase.auth
 
     private val PREFS_FILENAME = "SHARED_PREF"
+    private lateinit var currentLock: String
+    lateinit var currentUser: FirebaseUser
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var currentLockID : String
     private lateinit var lockTitleTextView : TextView
+    private lateinit var alertDialogBuilder: AlertDialog.Builder
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,6 +54,7 @@ class HistoryFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_history, container, false)
 
         historyRecyclerView = root.findViewById(R.id.recyclerview_history)
+        alertDialogBuilder = AlertDialog.Builder(context)
         linearLayoutManager = LinearLayoutManager(context)
         historyRecyclerView.layoutManager = linearLayoutManager
 
@@ -56,6 +65,7 @@ class HistoryFragment : Fragment() {
 
         dataFirestore(currentLockID)
         getLock(currentLockID)
+        currentUser = auth.currentUser!!
 
         return root
     }
@@ -80,11 +90,109 @@ class HistoryFragment : Fragment() {
             }
     }
 
+
+    //enable options menu in this fragment
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
+        super.onCreate(savedInstanceState)
+    }
+    //inflate the menu
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater!!.inflate(R.menu.options_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+    //handle item clicks of menu
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        //get item id to handle item clicks
+        val id = item.itemId
+        //handle item clicks
+        if (id == R.id.action_add){
+            val intent = Intent(context, AddLockActivity::class.java)
+            startActivity(intent)
+        } else if (id == R.id.action_next){
+            nextLock()
+        } else if (id == R.id.action_log_out){
+            alertLogOut()
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun getLock(lockID: String) {
         db.collection("locks").document(lockID).get().addOnSuccessListener { document ->
             if(document != null && document.exists()){
                 lockTitleTextView.text = document["title"].toString()
             }
         }
+    }
+
+    private fun saveLockSelection(currentLockID: String) {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putString("LOCK", currentLockID)
+        editor.apply()
+        Log.i(TAG, currentLockID)
+        Log.i(TAG, sharedPreferences.getString("LOCK", "something not good").toString())
+    }
+
+    private fun nextLock() {
+        db.collection("locks")
+            .whereArrayContains("owners", currentUser.uid)
+            .get().addOnSuccessListener {result ->
+                for (document in result){
+                    arrayListOfLocks.add(document.id)
+                }
+                db.collection("locks")
+                    .whereArrayContains("guests", currentUser.uid)
+                    .get().addOnSuccessListener { result ->
+                        for (document in result) {
+                            arrayListOfLocks.add(document.id)
+                        }
+                        if (arrayListOfLocks.size == 1) {
+                            saveLockSelection(arrayListOfLocks[0])
+                            currentLock = arrayListOfLocks[0]
+                        }
+                    }
+            }
+
+        //Log.i(TAG,""+arrayListOfLocks.indexOf(currentLockID))
+
+        currentLockID = if (arrayListOfLocks.indexOf(currentLockID)+1 == arrayListOfLocks.size) {
+            arrayListOfLocks[0]
+        } else {
+            arrayListOfLocks[arrayListOfLocks.indexOf(currentLockID)+1]
+        }
+
+        saveLockSelection(currentLockID)
+        updateLockTitle()
+    }
+
+    private fun updateLockTitle() {
+        db.collection("locks").document(currentLockID).get().addOnSuccessListener {document ->
+            if (document != null && document.exists()) {
+                Log.i(TAG, "hello " + document.data)
+                lockTitleTextView.text = document.data!!["title"].toString()
+            } else {
+                lockTitleTextView.text = "You have no lock"
+            }
+        }
+    }
+
+    private fun logOut() {
+        auth.signOut()
+        val intent = Intent(activity, LoginActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+    }
+
+    private fun alertLogOut() {
+        alertDialogBuilder.setTitle("Are you sure you want to log out?")
+        alertDialogBuilder.setMessage("This will require you to use email and password next time you want to log in")
+        alertDialogBuilder.setPositiveButton("Yes") { _, _ ->
+            logOut()
+        }
+
+        alertDialogBuilder.setNegativeButton("No") { _, _ ->
+        }
+        alertDialogBuilder.show()
     }
 }
