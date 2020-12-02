@@ -2,9 +2,9 @@ package com.example.trilock.data.register_login.classes
 
 class Lock {
 
-    var locked: Boolean = false
-    lateinit var owners: ArrayList<String>
-    var isUnlocked: Boolean = false
+    var isLocked: Boolean = false
+    var owners: ArrayList<String> = ArrayList()
+    var guests: ArrayList<String> = ArrayList()
 
     constructor(){
 
