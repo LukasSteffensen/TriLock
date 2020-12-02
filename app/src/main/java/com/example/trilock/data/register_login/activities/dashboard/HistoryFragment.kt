@@ -154,7 +154,7 @@ class HistoryFragment : Fragment() {
                     }
             }
 
-        //Log.i(TAG,""+arrayListOfLocks.indexOf(currentLockID))
+        Log.i(TAG,""+arrayListOfLocks.indexOf(currentLockID))
 
         currentLockID = if (arrayListOfLocks.indexOf(currentLockID)+1 == arrayListOfLocks.size) {
             arrayListOfLocks[0]
