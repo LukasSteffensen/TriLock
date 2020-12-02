@@ -92,6 +92,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
         alertDialogBuilder = AlertDialog.Builder(context)
         currentUser = auth.currentUser!!
 
+        getLocks()
+
         buttonInvite.setOnClickListener {
             checkInputAndGetUserFromDatabase()
         }
@@ -106,7 +108,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     }
 
     override fun onItemClicked(user: User) {
-        removeGuest(user)
+        alertRemoveGuest(user)
     }
 
     private fun removeGuest(user: User) {
@@ -136,7 +138,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                             guestId = document.id
                             guestFirstName = document["firstName"].toString()
                             guestLastName = document["lastName"].toString()
-                            makeDialog()
+                            alertAddGuest()
                             }
                         }
                     }
@@ -144,15 +146,11 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
         }
     }
 
-    private fun toast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-    }
-
     private fun String.isEmailValid(): Boolean {
         return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
     }
 
-    private fun makeDialog() {
+    private fun alertAddGuest() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Are you sure?")
         builder.setMessage("This action will make $guestFirstName $guestLastName Name able to unlock your lock '$lockTitle'")
@@ -189,8 +187,12 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
             .document(currentLock)
             .get().addOnSuccessListener { document  ->
                 Log.i(TAG, document.toString())
-                ownerArrayList = document.get("owners") as ArrayList<String>
-                guestArrayList = document.get("guests") as ArrayList<String>
+                if (document.get("owners") != null) {
+                    ownerArrayList = document.get("owners") as ArrayList<String>
+                }
+                if (document.get("guests") != null) {
+                    guestArrayList = document.get("guests") as ArrayList<String>
+                }
                 Log.i(TAG, ownerArrayList.toString())
                 Log.i(TAG, userUid)
                 if (!ownerArrayList.contains(userUid)) {
@@ -198,6 +200,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                     buttonInvite.isInvisible = true
                     editTextEmailInvite.isInvisible = true
                 } else {
+                    buttonInvite.isInvisible = false
+                    editTextEmailInvite.isInvisible = false
                     isOwner = true
                 }
                 for (userId in ownerArrayList) {
@@ -277,6 +281,30 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun nextLock() {
+        if (currentLock == "You have no lock") {
+            toast("You have no locks")
+        } else {
+            Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
+            currentLock = when (arrayListOfLocks.size) {
+                arrayListOfLocks.indexOf(currentLock)+1 -> {
+                    arrayListOfLocks[0]
+                }
+                1 -> {
+                    toast("You only have one lock")
+                    arrayListOfLocks[0]
+                }
+                else -> {
+                    arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
+                }
+            }
+            saveLockSelection(currentLock)
+            updateLockTitle()
+            userList.clear()
+            ownerCheckAndAdapterUpdate()
+        }
+    }
+
     private fun saveLockSelection(currentLock: String) {
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
         editor.putString("LOCK", currentLock)
@@ -285,36 +313,41 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
         Log.i(TAG, sharedPreferences.getString("LOCK", "something not good").toString())
     }
 
-    private fun nextLock() {
+    private fun resetSharedPreferences() {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.clear().apply()
+    }
+
+    private fun getLocks() {
         db.collection("locks")
             .whereArrayContains("owners", currentUser.uid)
             .get().addOnSuccessListener {result ->
                 for (document in result){
                     arrayListOfLocks.add(document.id)
+                    if (currentLock == "You have no lock"){
+                        currentLock = document.id
+                    }
                 }
                 db.collection("locks")
                     .whereArrayContains("guests", currentUser.uid)
                     .get().addOnSuccessListener { result ->
                         for (document in result) {
                             arrayListOfLocks.add(document.id)
+                            if (currentLock == "You have no lock"){
+                                currentLock = document.id
+                            }
                         }
                         if (arrayListOfLocks.size == 1) {
                             saveLockSelection(arrayListOfLocks[0])
                             currentLock = arrayListOfLocks[0]
+                            updateLockTitle()
                         }
                     }
             }
+    }
 
-        Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
-
-        currentLock = if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
-            arrayListOfLocks[0]
-        } else {
-            arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
-        }
-
-        saveLockSelection(currentLock)
-        updateLockTitle()
+    private fun toast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     private fun updateLockTitle() {
@@ -330,6 +363,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
 
     private fun logOut() {
         auth.signOut()
+        resetSharedPreferences()
         val intent = Intent(activity, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
@@ -340,6 +374,18 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
         alertDialogBuilder.setMessage("This will require you to use email and password next time you want to log in")
         alertDialogBuilder.setPositiveButton("Yes") { _, _ ->
             logOut()
+        }
+
+        alertDialogBuilder.setNegativeButton("No") { _, _ ->
+        }
+        alertDialogBuilder.show()
+    }
+
+    private fun alertRemoveGuest(user: User) {
+        alertDialogBuilder.setTitle("Are you sure you want to remove ${user.firstName} ${user.lastName}?")
+        alertDialogBuilder.setMessage("This will make them unable to interact with the lock in any way but you can always add them again")
+        alertDialogBuilder.setPositiveButton("Yes") { _, _ ->
+            removeGuest(user)
         }
 
         alertDialogBuilder.setNegativeButton("No") { _, _ ->

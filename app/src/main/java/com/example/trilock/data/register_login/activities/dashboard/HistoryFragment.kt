@@ -30,8 +30,6 @@ class HistoryFragment : Fragment() {
     private lateinit var historyViewModel: HistoryViewModel
     private lateinit var historyRecyclerView: RecyclerView
     val db = Firebase.firestore
-    private val TAG = "HistoryFragment"
-    private var arrayListOfLocks: ArrayList<String> = ArrayList()
     private lateinit var adapter: HistoryAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
     var auth: FirebaseAuth = Firebase.auth
@@ -66,27 +64,7 @@ class HistoryFragment : Fragment() {
         setLockTitle(currentLockID)
         currentUser = auth.currentUser!!
 
-        getLocks()
-
         return root
-    }
-
-    private fun nextLock() {
-        if (currentLockID == "You have no lock") {
-            toast("You have no locks")
-        } else {
-            Log.i(TAG,""+arrayListOfLocks.indexOf(currentLockID))
-            currentLockID = if (arrayListOfLocks.indexOf(currentLockID)+1 == arrayListOfLocks.size) {
-                toast("You only have one lock")
-                arrayListOfLocks[0]
-            } else {
-                arrayListOfLocks[arrayListOfLocks.indexOf(currentLockID)+1]
-            }
-
-            saveLockSelection(currentLockID)
-
-            updateLockTitle()
-        }
     }
 
     private fun dataFirestore(lockID : String) {
@@ -117,7 +95,7 @@ class HistoryFragment : Fragment() {
     }
     //inflate the menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater!!.inflate(R.menu.options_menu, menu)
+        inflater!!.inflate(R.menu.options_menu_settings, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
     //handle item clicks of menu
@@ -128,8 +106,6 @@ class HistoryFragment : Fragment() {
         if (id == R.id.action_add){
             val intent = Intent(context, AddLockActivity::class.java)
             startActivity(intent)
-        } else if (id == R.id.action_next){
-            nextLock()
         } else if (id == R.id.action_log_out){
             alertLogOut()
         }
@@ -141,57 +117,6 @@ class HistoryFragment : Fragment() {
         db.collection("locks").document(lockID).get().addOnSuccessListener { document ->
             if(document != null && document.exists()){
                 lockTitleTextView.text = document["title"].toString()
-            }
-        }
-    }
-
-    private fun saveLockSelection(currentLockID: String) {
-        val editor: SharedPreferences.Editor = sharedPreferences.edit()
-        editor.putString("LOCK", currentLockID)
-        editor.apply()
-        Log.i(TAG, currentLockID)
-        Log.i(TAG, sharedPreferences.getString("LOCK", "something not good").toString())
-    }
-
-    private fun getLocks() {
-        db.collection("locks")
-            .whereArrayContains("owners", currentUser.uid)
-            .get().addOnSuccessListener {result ->
-                for (document in result){
-                    arrayListOfLocks.add(document.id)
-                    if (currentLockID == "You have no lock"){
-                        currentLockID = document.id
-                    }
-                }
-                db.collection("locks")
-                    .whereArrayContains("guests", currentUser.uid)
-                    .get().addOnSuccessListener { result ->
-                        for (document in result) {
-                            arrayListOfLocks.add(document.id)
-                            if (currentLockID == "You have no lock"){
-                                currentLockID = document.id
-                            }
-                        }
-                        if (arrayListOfLocks.size == 1) {
-                            saveLockSelection(arrayListOfLocks[0])
-                            currentLockID = arrayListOfLocks[0]
-                            updateLockTitle()
-                        }
-                    }
-            }
-    }
-
-    private fun toast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-    }
-
-    private fun updateLockTitle() {
-        db.collection("locks").document(currentLockID).get().addOnSuccessListener {document ->
-            if (document != null && document.exists()) {
-                Log.i(TAG, "hello " + document.data)
-                lockTitleTextView.text = document.data!!["title"].toString()
-            } else {
-                lockTitleTextView.text = "You have no lock"
             }
         }
     }

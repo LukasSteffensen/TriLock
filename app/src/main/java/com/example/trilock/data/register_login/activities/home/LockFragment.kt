@@ -232,11 +232,17 @@ class LockFragment : Fragment() {
             toast("You have no locks")
         } else {
             Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
-            currentLock = if (arrayListOfLocks.indexOf(currentLock)+1 == arrayListOfLocks.size) {
-                toast("You only have one lock")
-                arrayListOfLocks[0]
-            } else {
-                arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
+            currentLock = when (arrayListOfLocks.size) {
+                arrayListOfLocks.indexOf(currentLock)+1 -> {
+                    arrayListOfLocks[0]
+                }
+                1 -> {
+                    toast("You only have one lock")
+                    arrayListOfLocks[0]
+                }
+                else -> {
+                    arrayListOfLocks[arrayListOfLocks.indexOf(currentLock)+1]
+                }
             }
 
             saveLockSelection(currentLock)

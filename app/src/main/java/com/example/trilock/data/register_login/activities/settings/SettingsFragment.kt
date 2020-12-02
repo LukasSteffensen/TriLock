@@ -57,6 +57,7 @@ class SettingsFragment : Fragment() {
 
         setUserName()
         sharedPreferences = context?.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)!!
+        alertDialogBuilder = AlertDialog.Builder(context)
         isSwitched = sharedPreferences.getBoolean("SWITCH", false)
         Log.i("SettingsFragment: ", isSwitched.toString())
         if (isSwitched) {
@@ -93,6 +94,7 @@ class SettingsFragment : Fragment() {
 
     private fun logOut() {
         auth.signOut()
+        resetSharedPreferences()
         val intent = Intent(activity, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
@@ -135,4 +137,8 @@ class SettingsFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun resetSharedPreferences() {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.clear().apply()
+    }
 }
