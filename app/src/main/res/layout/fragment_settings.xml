@@ -24,7 +24,7 @@
         android:id="@+id/switch_biometrics"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/turn_on_biometric_authentication"
+        android:text="@string/fingerprint"
         app:layout_constraintBottom_toBottomOf="@+id/text_settings"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

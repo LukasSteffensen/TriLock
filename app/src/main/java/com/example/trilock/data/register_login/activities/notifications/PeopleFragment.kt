@@ -94,15 +94,17 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
 
         getLocks()
 
+        updateLockTitle()
+
         buttonInvite.setOnClickListener {
             checkInputAndGetUserFromDatabase()
         }
 
-        db.collection("locks").document(currentLock).get().addOnSuccessListener {
-            documentSnapshot ->
-            lockTitle = documentSnapshot["title"].toString()
-            textViewLockTitle.text = lockTitle
-        }
+//        db.collection("locks").document(currentLock).get().addOnSuccessListener {
+//            documentSnapshot ->
+//            lockTitle = documentSnapshot["title"].toString()
+//            textViewLockTitle.text = lockTitle
+//        }
 
         return root
     }
@@ -284,6 +286,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     private fun nextLock() {
         if (currentLock == "You have no lock") {
             toast("You have no locks")
+            updateLockTitle()
         } else {
             Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
             currentLock = when (arrayListOfLocks.size) {

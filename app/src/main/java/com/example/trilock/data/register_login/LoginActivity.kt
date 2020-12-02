@@ -107,6 +107,10 @@ class LoginActivity : AppCompatActivity() {
             // ALTERNATIVE LOG IN METHOD HERE
         }
 
+//        if (auth.currentUser != null) {
+//            editTextEmail.text = auth.currentUser.email.toString()
+//        }
+
         val buttonLogIn = findViewById<Button>(R.id.button_login)
         buttonLogIn?.setOnClickListener()
         {

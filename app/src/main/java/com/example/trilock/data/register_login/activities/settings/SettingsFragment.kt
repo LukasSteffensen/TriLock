@@ -62,7 +62,6 @@ class SettingsFragment : Fragment() {
         Log.i("SettingsFragment: ", isSwitched.toString())
         if (isSwitched) {
             switch.isChecked = true
-            switch.text = "Biometric authentication"
         }
 
         switch.setOnCheckedChangeListener { _, isSwitched ->

@@ -57,6 +57,7 @@
     <string name="email">Email</string>
     <string name="lock_title">Lock Title</string>
     <string name="add_person">Add Person</string>
+    <string name="fingerprint">Fingerprint</string>
 
 
 </resources>

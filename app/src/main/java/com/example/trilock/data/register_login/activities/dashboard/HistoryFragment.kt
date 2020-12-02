@@ -64,6 +64,8 @@ class HistoryFragment : Fragment() {
         setLockTitle(currentLockID)
         currentUser = auth.currentUser!!
 
+        setLockTitle(currentLockID)
+
         return root
     }
 

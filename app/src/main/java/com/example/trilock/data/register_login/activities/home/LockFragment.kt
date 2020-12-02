@@ -248,6 +248,7 @@ class LockFragment : Fragment() {
             saveLockSelection(currentLock)
 
             updateLockTitle()
+            currentLockStatus(currentLock)
         }
     }
 
