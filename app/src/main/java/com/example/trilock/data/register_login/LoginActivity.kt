@@ -119,6 +119,10 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 email = editTextEmail.text.toString().trim()
                 password = editTextPassword.text.toString().trim()
+                if (email != auth.currentUser?.email.toString()) {
+                    Log.i("EMAIL", "HELLO")
+                    resetSharedPreferences()
+                }
             //Check if credentials match and user has verified their email,
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
@@ -168,6 +172,11 @@ class LoginActivity : AppCompatActivity() {
             toast("Authentication cancelled")
         }
         return cancellationSignal as CancellationSignal
+    }
+
+    private fun resetSharedPreferences() {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.clear().apply()
     }
 
     private fun checkBiometricSupport(): Boolean {

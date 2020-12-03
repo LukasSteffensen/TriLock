@@ -82,8 +82,6 @@ class LockFragment : Fragment() {
 
         getLocks()
 
-        updateLockTitle()
-
         // set on-click listener for ImageView
         imageViewLock.setOnClickListener {
             Log.i(TAG," imageView clicked")
@@ -277,6 +275,7 @@ class LockFragment : Fragment() {
                         updateLockTitle()
                         }
                     }
+                updateLockTitle()
                 currentLockStatus(currentLock)
             }
     }
