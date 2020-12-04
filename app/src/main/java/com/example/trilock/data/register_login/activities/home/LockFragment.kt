@@ -19,6 +19,7 @@ import com.example.trilock.R.string.locked
 import com.example.trilock.R.string.unlocked
 import com.example.trilock.data.model.LoginActivity
 import com.example.trilock.data.model.ui.lock.LockViewModel
+import com.example.trilock.data.register_login.DiffieHellman
 import com.example.trilock.data.register_login.activities.AddLockActivity
 import com.google.firebase.Timestamp.now
 import com.google.firebase.auth.FirebaseAuth
@@ -31,6 +32,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.math.BigInteger
 import kotlin.collections.ArrayList
 
 class LockFragment : Fragment() {
@@ -57,6 +59,18 @@ class LockFragment : Fragment() {
     private var arrayListOfLocks: ArrayList<String> = ArrayList()
     private lateinit var alertDialogBuilder: AlertDialog.Builder
 
+    val g: BigInteger = 2.toBigInteger()
+    private val hexStr: String = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C662" +
+            "8B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF" +
+            "9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7E" +
+            "C6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C" +
+            "4B1FE649286651ECE45B3DC2007CB8A163BF0598DA48361C55D39A69163F" +
+            "A8FD24CF5F83655D23DCA3AD961C62F356208552BB9ED529077096966D670" +
+            "C354E4ABC9804F1746C08CA18217C32905E462E36CE3BE39E772C180E8603" +
+            "9B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF6955817183995497CEA956" +
+            "AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF"
+    //    public val p: BigInteger = 2^2048−2^1984−1+264*((21918*pi)+124476)
+    var p: BigInteger = hexStr.toBigInteger(radix = 16)
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -91,6 +105,9 @@ class LockFragment : Fragment() {
             actuallyUnlockOrLockTheLock(currentLock)
             imageViewLock.isClickable = false
         }
+
+        diffieTest()
+
         return root
     }
 
@@ -304,6 +321,21 @@ class LockFragment : Fragment() {
         alertDialogBuilder.setNegativeButton("No") { _, _ ->
         }
         alertDialogBuilder.show()
+    }
+
+    private fun diffieTest() {
+        val alicePrivateKey = DiffieHellman.privateKey(p)
+        val alicePublicKey = DiffieHellman.publicKey(p,g,alicePrivateKey)
+
+        val bobPrivateKey = DiffieHellman.privateKey(p)
+        val bobPublicKey = DiffieHellman.publicKey(p,g,bobPrivateKey)
+
+        val aliceSecretKey = DiffieHellman.secret(p,bobPublicKey,alicePrivateKey)
+        val bobSecretKey = DiffieHellman.secret(p,alicePublicKey,bobPrivateKey)
+
+        if (aliceSecretKey == bobSecretKey) {
+            toast("DIFFIE HELLMAN WORKS")
+        }
     }
 
 }
