@@ -176,7 +176,7 @@ class LockFragment : Fragment() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if(dataSnapshot.value.toString() == "0") {
                     imageViewLock.setImageResource(lockImages[1])
-                    textViewLockStatus.text = "unLocked"
+                    textViewLockStatus.text = "Unlocked"
                     imageViewLock.isClickable = true
                 } else {
                     imageViewLock.setImageResource(lockImages[0])
@@ -277,6 +277,7 @@ class LockFragment : Fragment() {
                     }
                 updateLockTitle()
                 currentLockStatus(currentLock)
+                saveLockSelection(currentLock)
             }
     }
 

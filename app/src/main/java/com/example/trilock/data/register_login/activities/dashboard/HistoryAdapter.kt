@@ -9,19 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.trilock.R
 import com.example.trilock.data.register_login.classes.Event
 
-class HistoryAdapter(val history: ArrayList<Event>) : RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>(){
+class HistoryAdapter(private val history: ArrayList<Event>) : RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>(){
 
     class HistoryViewHolder(historyView: View) : RecyclerView.ViewHolder(historyView) {
 
-        val historyTextView: TextView
-        val timeStampTextView: TextView
-        val statusImageView: ImageView
+        val historyTextView: TextView = historyView.findViewById(R.id.text_view_history)
+        val timeStampTextView: TextView = historyView.findViewById(R.id.text_view_time_stamp)
+        val statusImageView: ImageView = historyView.findViewById(R.id.image_view_lock)
 
-        init {
-            historyTextView = historyView.findViewById(R.id.text_view_history)
-            timeStampTextView = historyView.findViewById(R.id.text_view_time_stamp)
-            statusImageView = historyView.findViewById(R.id.image_view_lock)
-        }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
             val view =
