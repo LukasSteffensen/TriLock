@@ -106,7 +106,7 @@ class LockFragment : Fragment() {
             imageViewLock.isClickable = false
         }
 
-//        diffieTest()
+        diffieTest()
 
         return root
     }
@@ -327,21 +327,23 @@ class LockFragment : Fragment() {
         val alicePrivateKey = DiffieHellman.privateKey(p)
         val alicePublicKey = DiffieHellman.publicKey(p,g,alicePrivateKey)
 
-        Log.i("alice", alicePrivateKey.toString())
-        Log.i("alice", alicePublicKey.toString())
+        Log.i("alicePrivateKey", alicePrivateKey.toString())
+        Log.i("alicePublicKey", alicePublicKey.toString())
 
         val bobPrivateKey = DiffieHellman.privateKey(p)
         val bobPublicKey = DiffieHellman.publicKey(p,g,bobPrivateKey)
 
-        Log.i("bob", bobPrivateKey.toString())
-        Log.i("bob", bobPublicKey.toString())
+        Log.i("bobPrivateKey", bobPrivateKey.toString())
+        Log.i("bobPublicKey", bobPublicKey.toString())
 
         val aliceSecretKey = DiffieHellman.secret(p,bobPublicKey,alicePrivateKey)
         val bobSecretKey = DiffieHellman.secret(p,alicePublicKey,bobPrivateKey)
 
-        Log.i("secret", bobSecretKey.toString())
+        Log.i("aliceSecretKey", aliceSecretKey.toString())
+        Log.i("bobSecretKey", bobSecretKey.toString())
 
         if (aliceSecretKey == bobSecretKey) {
+            Log.i("Yay", "The shared secret key is the same for Alice and Bob")
             toast("DIFFIE HELLMAN WORKS")
         }
     }
