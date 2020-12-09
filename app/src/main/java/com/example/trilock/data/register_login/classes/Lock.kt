@@ -13,6 +13,4 @@ class Lock {
     constructor(firstName: String, timeStamp: String, isUnlocked: Boolean) {
 
     }
-
-
 }

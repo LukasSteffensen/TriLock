@@ -4,10 +4,10 @@ import java.util.*
 
 object DiffieHellman {
 
-    fun privateKey(prime: BigInteger): BigInteger {
-        var key = prime
-        while (key < BigInteger.ONE || key >= prime) {
-            key = BigInteger(prime.bitLength(), Random())
+    fun privateKey(p: BigInteger): BigInteger {
+        var key = p
+        while (key < BigInteger.ONE || key >= p) {
+            key = BigInteger(p.bitLength(), Random())
         }
         return key
     }
@@ -16,7 +16,7 @@ object DiffieHellman {
         return g.modPow(privKey, p)
     }
 
-    fun secret(prime: BigInteger, publicKey: BigInteger, privateKey: BigInteger): BigInteger {
-        return publicKey.modPow(privateKey, prime)
+    fun secret(p: BigInteger, publicKey: BigInteger, privateKey: BigInteger): BigInteger {
+        return publicKey.modPow(privateKey, p)
     }
 }

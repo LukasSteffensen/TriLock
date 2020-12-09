@@ -64,7 +64,7 @@ class AddLockActivity : AppCompatActivity() {
                     val docRef = db.collection("unregisteredLocks").document(lockHash)
                     docRef.get()
                         .addOnSuccessListener { document ->
-                            if (document != null) {
+                            if (document != null && document.exists()) {
                                 Log.d(TAG, "DocumentSnapshot data: $document")
 //                                add new lock to database along with user
                                 title = editTextTitle.text.toString()
@@ -84,6 +84,7 @@ class AddLockActivity : AppCompatActivity() {
                         }
                         .addOnFailureListener { exception ->
                             Log.d(TAG, "get failed with ", exception)
+                            toast("BIG FAIL")
                         }
                 }
             }

@@ -33,8 +33,4 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
     }
-
-    private fun toast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
 }

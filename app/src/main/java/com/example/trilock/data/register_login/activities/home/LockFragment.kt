@@ -344,8 +344,7 @@ class LockFragment : Fragment() {
 
         if (aliceSecretKey == bobSecretKey) {
             Log.i("Yay", "The shared secret key is the same for Alice and Bob")
-            toast("DIFFIE HELLMAN WORKS")
+//            toast("DIFFIE HELLMAN WORKS")
         }
     }
-
 }

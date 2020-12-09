@@ -74,7 +74,7 @@ class RegisterActivity : AppCompatActivity() {
             email = editTextEmail.text.toString().trim()
             password = editTextPassword.text.toString().trim()
 
-            //Checks if all the edittexts are empty and if some requirements are not met
+            //Checks if all the editTexts are empty and if some requirements are not met
             if (firstName.isEmpty()) {
                 inputAgain(editTextFirstName, "Please put in your first name")
             } else if (lastName.isEmpty()) {
