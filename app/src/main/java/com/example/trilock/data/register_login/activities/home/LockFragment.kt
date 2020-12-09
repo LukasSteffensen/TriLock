@@ -6,17 +6,13 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isInvisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.trilock.R
-import com.example.trilock.R.string.locked
-import com.example.trilock.R.string.unlocked
 import com.example.trilock.data.model.LoginActivity
 import com.example.trilock.data.model.ui.lock.LockViewModel
 import com.example.trilock.data.register_login.DiffieHellman
@@ -102,7 +98,7 @@ class LockFragment : Fragment() {
             changeLockStatus()
             addEventWithUser(currentLock)
             currentLockStatus(currentLock)
-            actuallyUnlockOrLockTheLock(currentLock)
+            lockOrUnlock(currentLock)
             imageViewLock.isClickable = false
         }
 
@@ -149,7 +145,7 @@ class LockFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun actuallyUnlockOrLockTheLock(lockID: String){
+    private fun lockOrUnlock(lockID: String){
         val database = Firebase.database
         val myRef = database.getReference("/locks/$lockID/shouldLock")
 
