@@ -288,7 +288,6 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
             toast("You have no locks")
             updateLockTitle()
         } else {
-            Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
             currentLock = when (arrayListOfLocks.size) {
                 arrayListOfLocks.indexOf(currentLock)+1 -> {
                     arrayListOfLocks[0]

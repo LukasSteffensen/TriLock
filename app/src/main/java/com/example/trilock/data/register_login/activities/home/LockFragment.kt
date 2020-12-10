@@ -241,8 +241,7 @@ class LockFragment : Fragment() {
     private fun nextLock() {
         if (currentLock == "You have no lock") {
             toast("You have no locks")
-        } else {
-            Log.i(TAG,""+arrayListOfLocks.indexOf(currentLock))
+        } else if (arrayListOfLocks.isNotEmpty()){
             currentLock = when (arrayListOfLocks.size) {
                 arrayListOfLocks.indexOf(currentLock)+1 -> {
                     arrayListOfLocks[0]
