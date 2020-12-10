@@ -171,7 +171,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
             .document(currentLock)
             .update("guests",FieldValue.arrayUnion(guestId)).addOnSuccessListener {
                 toast("$guestFirstName $guestLastName has now been added to your lock")
-                val guest: User = User(guestFirstName, false, guestId)
+                val guest: User = User(guestFirstName, guestLastName, false, guestId)
                 userList.add(guest)
                 adapter.update(userList, true)
                 closeKeyboardAndRemoveText()
@@ -209,6 +209,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                                 Log.i("second for loop", userDocument.data!!["firstName"].toString())
                                 user = User(
                                     userDocument.data!!["firstName"].toString(),
+                                    userDocument.data!!["lastName"].toString(),
                                     true,
                                     userId
                                 )
@@ -225,6 +226,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                             Log.i(TAG, guestDocument.data!!["firstName"].toString())
                             user = User(
                             guestDocument["firstName"].toString(),
+                            guestDocument["lastName"].toString(),
                             false,
                                 userId
                         )

@@ -9,8 +9,9 @@ class User{
     var isOwner: Boolean? = null
     var userId: String? = null
 
-    constructor(firstName: String?, isOwner: Boolean?, userId: String?) {
+    constructor(firstName: String?, lastName: String?, isOwner: Boolean?, userId: String?) {
         this.firstName = firstName
+        this.lastName = lastName
         this.isOwner = isOwner
         this.userId = userId
     }
