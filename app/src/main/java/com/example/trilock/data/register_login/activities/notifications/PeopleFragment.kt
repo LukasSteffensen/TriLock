@@ -100,12 +100,6 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
             checkInputAndGetUserFromDatabase()
         }
 
-//        db.collection("locks").document(currentLock).get().addOnSuccessListener {
-//            documentSnapshot ->
-//            lockTitle = documentSnapshot["title"].toString()
-//            textViewLockTitle.text = lockTitle
-//        }
-
         return root
     }
 
@@ -356,7 +350,8 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
         db.collection("locks").document(currentLock).get().addOnSuccessListener {document ->
             if (document != null && document.exists()) {
                 Log.i(TAG, "hello " + document.data)
-                textViewLockTitle.text = document.data!!["title"].toString()
+                lockTitle = document.data!!["title"].toString()
+                textViewLockTitle.text = lockTitle
             } else {
                 textViewLockTitle.text = "You have no lock"
             }
