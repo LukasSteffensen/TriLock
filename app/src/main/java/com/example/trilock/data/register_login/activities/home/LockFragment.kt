@@ -102,8 +102,6 @@ class LockFragment : Fragment() {
             imageViewLock.isClickable = false
         }
 
-        diffieTest()
-
         return root
     }
 
