@@ -145,14 +145,18 @@ class LockFragment : Fragment() {
 
     private fun lockOrUnlock(lockID: String){
         val database = Firebase.database
-        val myRef = database.getReference("/locks/$lockID/shouldLock")
-
+        val lockCommandRef = database.getReference("/locks/$lockID/shouldLock")
         if(isLocked){
-            myRef.setValue(1)
+            lockCommandRef.setValue(1).addOnFailureListener {
+                toast("Not able to connect to the lock, please check you internet connection")
+                Log.i(TAG, it.stackTrace.toString())
+            }
         } else {
-            myRef.setValue(0)
+            lockCommandRef.setValue(0).addOnFailureListener {
+                toast("Not able to connect to the lock, please check you internet connection")
+                Log.i(TAG, it.stackTrace.toString())
+            }
         }
-
     }
 
     private fun addEventWithUser(lockID: String) {
@@ -166,7 +170,6 @@ class LockFragment : Fragment() {
                     "locked" to isLocked.toString(),
                     "timeStamp" to todayAsTimestamp.toString()
                 )
-
                 db.collection("locks")
                     .document(lockID)
                     .collection("events")
