@@ -57,10 +57,6 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     private lateinit var user: User
     private lateinit var alertDialogBuilder: AlertDialog.Builder
 
-
-
-
-
     private val PREFS_FILENAME = "SHARED_PREF"
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -132,9 +128,13 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
                     for (document in result) {
                         if (inviteEmail == document["email"]) {
                             guestId = document.id
-                            guestFirstName = document["firstName"].toString()
-                            guestLastName = document["lastName"].toString()
-                            alertAddGuest()
+                            if (guestId == userUid) {
+                                toast("You cannot add yourself")
+                            } else {
+                                guestFirstName = document["firstName"].toString()
+                                guestLastName = document["lastName"].toString()
+                                alertAddGuest()
+                                }
                             }
                         }
                     }
@@ -149,7 +149,7 @@ class PeopleFragment : Fragment(), PeopleAdapter.OnItemClickListener {
     private fun alertAddGuest() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Are you sure?")
-        builder.setMessage("This action will make $guestFirstName $guestLastName Name able to unlock your lock '$lockTitle'")
+        builder.setMessage("This action will make $guestFirstName $guestLastName able to unlock your lock '$lockTitle'")
         builder.setNeutralButton(R.string.cancel)
         {
             dialogInterface, which ->

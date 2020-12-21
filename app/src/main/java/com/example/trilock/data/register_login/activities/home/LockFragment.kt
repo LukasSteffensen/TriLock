@@ -29,6 +29,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.math.BigInteger
+import java.security.MessageDigest
 import kotlin.collections.ArrayList
 
 class LockFragment : Fragment() {
@@ -90,6 +91,8 @@ class LockFragment : Fragment() {
         currentUser = auth.currentUser!!
         database = Firebase.database.reference
 
+        Log.i("HASH!", hashString("Hello SHA 256 from ESP32learning", "SHA-256"))
+
         getLocks()
 
         // set on-click listener for ImageView
@@ -101,6 +104,8 @@ class LockFragment : Fragment() {
             lockOrUnlock(currentLock)
             imageViewLock.isClickable = false
         }
+
+        diffieTest()
 
         return root
     }
@@ -341,6 +346,14 @@ class LockFragment : Fragment() {
         if (aliceSecretKey == bobSecretKey) {
             Log.i("Yay", "The shared secret key is the same for Alice and Bob")
 //            toast("DIFFIE HELLMAN WORKS")
+//            Encryption.main(hashString(aliceSecretKey.toString(), "MD5"))
+//            Log.i("MD5", hashString(aliceSecretKey.toString(), "MD5"))
         }
+    }
+
+    private fun hashString(input: String, algorithm: String): String    {
+        return MessageDigest.getInstance(algorithm)
+            .digest(input.toByteArray())
+            .fold("", { str, it -> str + "%02x".format(it) })
     }
 }

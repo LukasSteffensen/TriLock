@@ -1,5 +1,6 @@
 package com.example.trilock.data.register_login
 import java.math.BigInteger
+import java.security.SecureRandom
 import java.util.*
 
 object DiffieHellman {
@@ -7,7 +8,7 @@ object DiffieHellman {
     fun privateKey(p: BigInteger): BigInteger {
         var key = p
         while (key < BigInteger.ONE || key >= p) {
-            key = BigInteger(p.bitLength(), Random())
+            key = BigInteger(p.bitLength(), SecureRandom())
         }
         return key
     }
